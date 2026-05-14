@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lufto Calcutta · 2026 PGA Championship · Team Kirby</title>
+  <title>Lufto Calcutta · 2026 PGA Championship · Team Pervert</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #0d1728; font-family: Georgia, 'Times New Roman', serif; padding-bottom: 3rem; }
@@ -147,13 +147,13 @@
 <div class="hero-stripe"></div>
 <div class="hero-inner">
   <div class="hero-eyebrow">Lufto Calcutta</div>
-  <div class="hero-title">2026 PGA Championship <span>Calcutta</span> · Team Kirby</div>
+  <div class="hero-title">2026 PGA Championship <span>Calcutta</span> · Team Pervert</div>
   <div class="hero-sub">Aronimink Golf Club · Newtown Square, PA · May 14–17, 2026</div>
   <div class="hero-badges">
     <span class="hbadge">$9,442 total pot</span>
     <span class="hbadge">52 golfers + The Field · 14 owners</span>
     <span class="hbadge muted">108th PGA Championship</span>
-    <span class="hbadge">Team Kirby: 5 golfers · $1,157</span>
+    <span class="hbadge">Team Pervert: 5 golfers · $1,157</span>
   </div>
 </div>
 <div class="ticker">
@@ -177,21 +177,21 @@
   </div>
 
   <div class="stat-row">
-    <div class="sc gb"><div class="sc-lbl">Kirby invested</div><div class="sc-val g">$1,157</div><div class="sc-sub">5 golfers · 12.3% of pot</div></div>
+    <div class="sc gb"><div class="sc-lbl">Pervert invested</div><div class="sc-val g">$1,157</div><div class="sc-sub">5 golfers · 12.3% of pot</div></div>
     <div class="sc"><div class="sc-lbl">Total pot</div><div class="sc-val">$9,442</div><div class="sc-sub">14 owners · 53 lots</div></div>
-    <div class="sc gb"><div class="sc-lbl">Kirby golfers above cut</div><div class="sc-val g" id="cut-stat">5 / 5</div><div class="sc-sub" id="cut-sub">Pre-tournament · all active</div></div>
-    <div class="sc"><div class="sc-lbl">Kirby projected payout</div><div class="sc-val" id="kirby-proj">—</div><div class="sc-sub" id="kirby-net">awaiting play</div></div>
+    <div class="sc gb"><div class="sc-lbl">Pervert golfers above cut</div><div class="sc-val g" id="cut-stat">5 / 5</div><div class="sc-sub" id="cut-sub">Pre-tournament · all active</div></div>
+    <div class="sc"><div class="sc-lbl">Pervert projected payout</div><div class="sc-val" id="kirby-proj">—</div><div class="sc-sub" id="kirby-net">awaiting play</div></div>
   </div>
 
   <div class="sec-head"><span class="sec">Daily round bonuses · $283 each (3%)</span><div class="sec-line"></div></div>
   <div class="db-row" id="db-row"></div>
 
-  <div class="sec-head"><span class="sec">Team Kirby · golfers, tee times &amp; TV</span><div class="sec-line"></div></div>
+  <div class="sec-head"><span class="sec">Team Pervert · golfers, tee times &amp; TV</span><div class="sec-line"></div></div>
   <div class="kirby-panel">
     <div class="kp-head">
-      <div class="kp-icon">🐦</div>
+      <div class="kp-icon">💩</div>
       <div>
-        <div class="kp-title">Team Kirby</div>
+        <div class="kp-title">Team Pervert</div>
         <div class="kp-sub">5 golfers · $1,157 invested · Click any golfer to expand scorecard · All times CT</div>
       </div>
     </div>
@@ -250,7 +250,7 @@
   </div>
 
   <div class="footer">
-    Lufto Calcutta · 2026 PGA Championship · Team Kirby<br>
+    Lufto Calcutta · 2026 PGA Championship · Team Pervert<br>
     <span style="margin-top:4px;display:inline-block;">Scores via live ESPN lookup <span class="ab">auto-refresh every 5 min</span></span><br>
     <button class="rbtn" onclick="loadScores()">↻ Refresh now</button>
   </div>
@@ -426,6 +426,31 @@ if(!owners[FIELD_OWNER]) owners[FIELD_OWNER] = { name:FIELD_OWNER, golfers:[], i
 owners[FIELD_OWNER].invested += FIELD_PRICE;
 owners[FIELD_OWNER].ownsField = true;
 
+// Team display labels: "Team [LastName]". When two owners share a last name (Kevin
+// and Brian Luftman), disambiguate with the first initial: "Team K. Luftman".
+// Cameron Kirby's team has a custom override.
+const TEAM_LABEL_OVERRIDES = { 'Cameron Kirby': 'Team Pervert' };
+const teamLabels = (() => {
+  const out = {};
+  const lastNameCounts = {};
+  Object.keys(owners).forEach(n => {
+    const last = n.trim().split(/\s+/).pop();
+    lastNameCounts[last] = (lastNameCounts[last]||0) + 1;
+  });
+  Object.keys(owners).forEach(n => {
+    if(TEAM_LABEL_OVERRIDES[n]){ out[n] = TEAM_LABEL_OVERRIDES[n]; return; }
+    const last = n.trim().split(/\s+/).pop();
+    if(lastNameCounts[last] > 1){
+      const first = n.trim().charAt(0).toUpperCase();
+      out[n] = `Team ${first}. ${last}`;
+    } else {
+      out[n] = `Team ${last}`;
+    }
+  });
+  return out;
+})();
+function teamLabel(ownerName){ return teamLabels[ownerName] || ownerName; }
+
 // === Live-data state =========================================================
 let liveScores={}, scorecards={}, liveTT={}, liveRoundScores={1:[],2:[],3:[],4:[]}, fieldGolfers=[];
 let tournamentStarted=false;
@@ -535,7 +560,7 @@ function renderDailyBonuses(rounds){
     if(!r || r.status==='none' || !r.winners){
       body=`<div class="db-head"><span class="db-lbl">${labels[i]}</span><span class="db-status none">Awaiting</span></div><div class="db-score e">—</div><div class="db-who">No scores yet · $283 bonus</div>`;
     }else{
-      const winnersTxt = r.winners.slice(0,3).map(w=>`<b>${w.name}</b> <span style="color:#5a7090">(${w.owner})</span>`).join(' · ');
+      const winnersTxt = r.winners.slice(0,3).map(w=>`<b>${w.name}</b> <span style="color:#5a7090">(${teamLabel(w.owner)})</span>`).join(' · ');
       const more = r.winners.length>3 ? ` <span style="color:#5a7090">+${r.winners.length-3} tied</span>` : '';
       const statusCls = r.status==='locked'?'locked':'live';
       const statusTxt = r.status==='locked'?'Locked':'Live';
@@ -600,11 +625,11 @@ function renderField(rounds){
     if(isKirby) tr.className='fk';
     else if(isField) tr.className='field-row';
     const ownerSp = isKirby ? 'sp-k' : (isField ? 'sp-f' : 'sp-o');
-    const ownerLabel = isField ? `The Field (${FIELD_OWNER})` : r.owner;
-    const costTxt = r.isDrafted ? '$'+r.cost.toLocaleString() : '—';
+    const ownerLabel = isField ? `The Field (${teamLabel(FIELD_OWNER)})` : teamLabel(r.owner);
+    const costTxt = r.isDrafted ? '$'+r.cost.toLocaleString() : '$'+FIELD_PRICE.toLocaleString();
     tr.innerHTML = `
       <td><span class="pip ${pc}">${pos}</span></td>
-      <td><span style="color:${isKirby?'#e8d4a0':(isField?'#7a8faf':'#c8d4e8')};font-size:13px;">${r.name}</span>${isKirby?'<span class="role-hl">Team Kirby</span>':''}<button class="sc-toggle-btn" onclick="toggleSc('${ftUid}',this)">▾ scorecard</button></td>
+      <td><span style="color:${isKirby?'#e8d4a0':(isField?'#7a8faf':'#c8d4e8')};font-size:13px;">${r.name}</span>${isKirby?'<span class="role-hl">Team Pervert</span>':''}<button class="sc-toggle-btn" onclick="toggleSc('${ftUid}',this)">▾ scorecard</button></td>
       <td><span class="sp ${ownerSp}">${ownerLabel}</span></td>
       <td class="r">${fmtScoreCell(r.score)}</td>
       <td class="r" style="font-size:12px;color:#4a6080;">${costTxt}</td>
@@ -643,11 +668,15 @@ function renderOwnerStandings(ranked, rounds){
   all.forEach(o => {
     const isK = o.name===FEATURED_OWNER;
     const div = document.createElement('div'); div.className = `own${isK?' fk':''}`;
-    const golferCount = o.golfers.length + (o.ownsField?1:0);
-    const subParts = [`${golferCount} ${o.ownsField?'lot'+(golferCount!==1?'s':''):('golfer'+(golferCount!==1?'s':''))}`];
-    if(o.ownsField) subParts.push('+ The Field');
-    const netHtml = o.projected ? (o.net>=0 ? `<span style="color:#4fc87a">+${fmtDollars(o.net)} net</span>` : `<span style="color:#e05a5a">-${fmtDollars(Math.abs(o.net))} net</span>`) : 'awaiting play';
-    div.innerHTML = `<div class="own-name${isK?' fk':''}">${isK?'🐦 ':''}${o.name}</div><div class="own-meta">Invested ${fmtDollars(o.invested)} · ${o.golfers.length} golfer${o.golfers.length!==1?'s':''}${o.ownsField?' + Field':''}</div><div class="own-pay">${o.projected?fmtDollars(o.projected):'—'}</div><div class="own-net">${netHtml}</div>`;
+    // Net: only "awaiting play" pre-tournament. Once play is underway, show actual
+    // P/L — owners projected to win nothing should see the full negative net, not
+    // a "still waiting" message.
+    let netHtml;
+    if(!tournamentStarted) netHtml = 'awaiting play';
+    else if(o.net>=0) netHtml = `<span style="color:#4fc87a">+${fmtDollars(o.net)} net</span>`;
+    else netHtml = `<span style="color:#e05a5a">-${fmtDollars(Math.abs(o.net))} net</span>`;
+    const payTxt = tournamentStarted ? fmtDollars(o.projected) : '—';
+    div.innerHTML = `<div class="own-name${isK?' fk':''}">${isK?'💩 ':''}${teamLabel(o.name)}</div><div class="own-meta">${o.name} · Invested ${fmtDollars(o.invested)} · ${o.golfers.length} golfer${o.golfers.length!==1?'s':''}${o.ownsField?' + Field':''}</div><div class="own-pay">${payTxt}</div><div class="own-net">${netHtml}</div>`;
     grid.appendChild(div);
   });
 }
@@ -660,11 +689,13 @@ function updateKirbyStats(ranked, rounds){
   let daily = 0;
   (rounds||[]).forEach(rd => { if(rd && rd.winners) rd.winners.forEach(w => { if(w.owner===FEATURED_OWNER) daily += rd.payoutEach; }); });
   const total = placement + daily;
-  document.getElementById('kirby-proj').textContent = total ? fmtDollars(total) : '—';
+  document.getElementById('kirby-proj').textContent = tournamentStarted ? fmtDollars(total) : '—';
   const net = total - kInvested;
-  document.getElementById('kirby-net').innerHTML = total
-    ? (net>=0 ? `<span style="color:#4fc87a">+${fmtDollars(net)} net</span>` : `<span style="color:#e05a5a">-${fmtDollars(Math.abs(net))} net</span>`)
-    : 'awaiting play';
+  let netHtml;
+  if(!tournamentStarted) netHtml = 'awaiting play';
+  else if(net>=0) netHtml = `<span style="color:#4fc87a">+${fmtDollars(net)} net</span>`;
+  else netHtml = `<span style="color:#e05a5a">-${fmtDollars(Math.abs(net))} net</span>`;
+  document.getElementById('kirby-net').innerHTML = netHtml;
 
   // "Kirby above cut" stat (top stat-row card)
   const kirbyGolfers = owners[FEATURED_OWNER]?.golfers || [];
@@ -687,7 +718,7 @@ function renderCutline(){
   v.textContent = projectedCutline===0 ? 'E' : (projectedCutline>0?'+'+projectedCutline:String(projectedCutline));
   const kirbyAll = owners[FEATURED_OWNER]?.golfers || [];
   const nIn = kirbyAll.filter(n => { const s=getScore(n); return s!==null && s<=projectedCutline; }).length;
-  line.innerHTML = `<b>${cutInsideCount}</b> golfers currently at or under · <b>${nIn}</b> of ${kirbyAll.length} Kirby golfers inside`;
+  line.innerHTML = `<b>${cutInsideCount}</b> golfers currently at or under · <b>${nIn}</b> of ${kirbyAll.length} Pervert golfers inside`;
 }
 
 // === Scorecard fetch =========================================================
