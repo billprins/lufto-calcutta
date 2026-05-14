@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lufto Calcutta · 2026 PGA Championship · Team Kirby</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0d1728; font-family: Georgia, 'Times New Roman', serif; padding-bottom: 3rem; }
+    .hero-stripe { height: 6px; background: #C9A84C; }
+    .hero-inner { padding: 2rem 1.5rem 1.5rem; text-align: center; background: #0d1728; border-bottom: 1px solid #C9A84C; }
+    .hero-eyebrow { font-size: 11px; letter-spacing: 0.18em; color: #C9A84C; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .hero-title { font-size: 30px; color: #fff; font-weight: normal; letter-spacing: 0.02em; margin-bottom: 0.3rem; }
+    .hero-title span { color: #C9A84C; }
+    .hero-sub { font-size: 13px; color: #7a8faf; font-family: 'Helvetica Neue', Arial, sans-serif; margin-bottom: 1rem; }
+    .hero-badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding-bottom: 1.5rem; }
+    .hbadge { font-size: 11px; padding: 4px 12px; border-radius: 20px; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; border: 1px solid rgba(201,168,76,0.4); color: #C9A84C; background: rgba(201,168,76,0.08); }
+    .hbadge.muted { border-color: rgba(255,255,255,0.15); color: #8fa3c0; background: rgba(255,255,255,0.05); }
+    .ticker { background: #C9A84C; padding: 6px 1rem; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; font-weight: 500; color: #0d1728; display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .t-dot { width: 6px; height: 6px; border-radius: 50%; background: #0d1728; opacity: 0.35; display: inline-block; margin-right: 6px; }
+    .content { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem; }
+    .sec { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #C9A84C; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; white-space: nowrap; }
+    .sec-head { display: flex; align-items: center; gap: 10px; margin: 1.5rem 0 0.8rem; padding-bottom: 8px; border-bottom: 1px solid #1e3050; }
+    .sec-line { flex: 1; height: 1px; background: #1e3050; }
+    .cut-card { background: #152035; border: 1px solid rgba(201,168,76,0.5); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+    .cut-side { display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+    .cut-lbl { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #5a7090; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .cut-val { font-size: 36px; color: #C9A84C; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; line-height: 1; }
+    .cut-info { flex: 1; min-width: 220px; }
+    .cut-rule { font-size: 13px; color: #C9A84C; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; margin-bottom: 4px; }
+    .cut-line { font-size: 12px; color: #7a8faf; font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; }
+    .cut-line b { color: #c8d4e8; font-weight: 500; }
+    .stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.5rem; }
+    .sc { background: #152035; border: 1px solid #1e3050; border-radius: 8px; padding: 1rem 1.1rem; }
+    .sc.gb { border-color: rgba(201,168,76,0.5); }
+    .sc-lbl { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #5a7090; font-family: 'Helvetica Neue', Arial, sans-serif; margin-bottom: 6px; }
+    .sc-val { font-size: 24px; color: #fff; }
+    .sc-val.g { color: #C9A84C; }
+    .sc-sub { font-size: 11px; color: #5a7090; font-family: 'Helvetica Neue', Arial, sans-serif; margin-top: 3px; }
+    .db-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.5rem; }
+    .db { background: #152035; border: 1px solid #1e3050; border-radius: 8px; padding: 0.9rem 1rem; }
+    .db.live { border-color: rgba(122,204,232,0.5); }
+    .db.locked { border-color: rgba(79,200,122,0.4); }
+    .db.fk { border-color: rgba(201,168,76,0.5); background: #16221a; }
+    .db-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .db-lbl { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #5a7090; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .db-pay { font-size: 11px; color: #4fc87a; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; }
+    .db-score { font-size: 22px; color: #fff; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; line-height: 1.1; }
+    .db-score.u { color: #4fc87a; } .db-score.o { color: #e05a5a; } .db-score.e { color: #c8d4e8; }
+    .db-who { font-size: 11px; color: #8fa3c0; font-family: 'Helvetica Neue', Arial, sans-serif; margin-top: 4px; line-height: 1.5; }
+    .db-who b { color: #c8d4e8; }
+    .db-status { font-size: 9px; padding: 1px 6px; border-radius: 8px; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+    .db-status.live { background: rgba(122,204,232,0.15); color: #7acce8; border: 1px solid rgba(122,204,232,0.3); }
+    .db-status.locked { background: rgba(79,200,122,0.15); color: #4fc87a; border: 1px solid rgba(79,200,122,0.3); }
+    .db-status.none { background: rgba(90,112,144,0.15); color: #5a7090; border: 1px solid rgba(90,112,144,0.25); }
+    .kirby-panel { background: #1a1305; border: 1px solid rgba(201,168,76,0.4); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .kp-head { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(201,168,76,0.25); }
+    .kp-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.4); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .kp-title { font-size: 18px; color: #C9A84C; }
+    .kp-sub { font-size: 12px; color: #8a6a3a; font-family: 'Helvetica Neue', Arial, sans-serif; margin-top: 2px; }
+    .kp-card { background: #0d1728; border: 1px solid rgba(201,168,76,0.25); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+    .kp-card:last-child { margin-bottom: 0; }
+    .kp-row { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0.9rem; cursor: pointer; user-select: none; gap: 10px; }
+    .kp-row:hover { background: #122036; }
+    .kp-name { flex: 1; min-width: 0; }
+    .kp-gname { font-size: 14px; color: #e8d4a0; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kp-meta { font-size: 10px; color: #8a6a3a; font-family: 'Helvetica Neue', Arial, sans-serif; margin-top: 2px; }
+    .kp-tee { text-align: right; flex-shrink: 0; }
+    .kp-tee-time { font-size: 11px; color: #7acce8; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .kp-tee-tv { font-size: 10px; color: #5a7090; font-family: 'Helvetica Neue', Arial, sans-serif; margin-top: 1px; }
+    .kp-score { font-size: 18px; font-weight: 500; min-width: 40px; text-align: right; flex-shrink: 0; color: #3a5a45; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .kp-score.u { color: #4fc87a; } .kp-score.o { color: #e05a5a; } .kp-score.e { color: #c8d4e8; }
+    .expand-arrow { font-size: 10px; color: #8a6a3a; margin-left: 4px; transition: transform 0.2s; display: inline-block; }
+    .expand-arrow.open { transform: rotate(180deg); }
+    .scorecard-wrap { display: none; background: #050a10; border-top: 1px solid rgba(201,168,76,0.15); padding: 6px 0.9rem 8px; overflow-x: auto; }
+    .scorecard-wrap.open { display: block; }
+    .scorecard { border-collapse: collapse; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; width: 100%; min-width: 480px; }
+    .scorecard th { background: #1a1305; color: #C9A84C; text-align: center; padding: 3px 4px; font-weight: 500; font-size: 10px; border: 1px solid rgba(201,168,76,0.2); }
+    .scorecard th.label { text-align: left; padding-left: 6px; }
+    .scorecard td { text-align: center; padding: 3px 4px; border: 1px solid rgba(201,168,76,0.15); color: #8fa3c0; vertical-align: middle; }
+    .scorecard td.label { text-align: left; padding-left: 6px; color: #8a6a3a; font-size: 10px; }
+    .scorecard td.par-row { color: #5a7090; font-size: 10px; }
+    .scorecard td.section { background: #0d1728; color: #8a6a3a; font-size: 10px; font-weight: 500; }
+    .scorecard td.total { font-weight: 500; color: #C9A84C; background: #0d1728; }
+    .hole-score { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; font-size: 11px; font-weight: 500; }
+    .eagle { background: #1a4a1a; color: #4fc87a; border-radius: 50%; border: 2px solid #4fc87a; }
+    .birdie { color: #4fc87a; border-radius: 50%; border: 1.5px solid #4fc87a; }
+    .par-score { color: #8fa3c0; }
+    .bogey { color: #e05a5a; border: 1.5px solid #e05a5a; border-radius: 2px; }
+    .dbl-bogey { background: #3a1010; color: #e05a5a; border: 1.5px solid #e05a5a; border-radius: 2px; }
+    .hole-blank { color: #2a4a30; }
+    .sc-legend { display: flex; gap: 12px; align-items: center; padding: 4px 0 6px; flex-wrap: wrap; }
+    .sc-legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #8a6a3a; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .leg-eg { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #4fc87a; background: #1a4a1a; display: inline-block; }
+    .leg-bi { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #4fc87a; display: inline-block; }
+    .leg-bo { width: 14px; height: 14px; border: 1.5px solid #e05a5a; border-radius: 2px; display: inline-block; }
+    .leg-db { width: 14px; height: 14px; border: 1.5px solid #e05a5a; border-radius: 2px; background: #3a1010; display: inline-block; }
+    .kp-foot { display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.9rem; background: #0a1322; border-top: 1px solid rgba(201,168,76,0.2); }
+    .kp-paid { font-size: 11px; color: #8a6a3a; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .kp-pay { font-size: 12px; color: #4fc87a; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; }
+    .own-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 8px; margin-bottom: 1.5rem; }
+    .own { background: #152035; border: 1px solid #1e3050; border-radius: 8px; padding: 0.8rem 1rem; }
+    .own.fk { background: #1a1305; border-color: rgba(201,168,76,0.5); }
+    .own-name { font-size: 13px; color: #c8d4e8; font-family: 'Helvetica Neue', Arial, sans-serif; margin-bottom: 4px; font-weight: 500; }
+    .own-name.fk { color: #C9A84C; }
+    .own-meta { font-size: 11px; color: #5a7090; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .own-pay { font-size: 18px; color: #fff; margin: 6px 0 2px; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; }
+    .own-net { font-size: 11px; font-family: 'Helvetica Neue', Arial, sans-serif; color: #5a7090; }
+    .ft { width: 100%; border-collapse: collapse; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; }
+    .ft th { text-align: left; padding: 7px 8px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #3a5070; border-bottom: 1px solid #1e3050; font-weight: 500; }
+    .ft th.r, .ft td.r { text-align: right; }
+    .ft td { padding: 7px 8px; border-bottom: 1px solid #111e30; vertical-align: middle; color: #8fa3c0; }
+    .ft tr.fk td { background: #1a1305; }
+    .ft tr.field-row td { background: #0d1728; color: #5a7090; font-style: italic; }
+    .ft tr:hover td { background: #192840; }
+    .ft tr.fk:hover td { background: #2a200a; }
+    .ft tr.sc-row td { padding: 0; border-top: none; background: #070f08; }
+    .pip { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 500; }
+    .p1{background:#C9A84C;color:#0d1728;} .p2{background:#8fa3c0;color:#0d1728;} .p3{background:#8a6a3a;color:#fff;} .pn{background:#1e3050;color:#5a7090;}
+    .sp { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+    .sp-k{background:rgba(201,168,76,0.15);color:#C9A84C;border:1px solid rgba(201,168,76,0.4);}
+    .sp-o{background:#1a2840;color:#8fa3c0;border:1px solid #2a4060;}
+    .sp-f{background:#0a1410;color:#5a7090;border:1px solid #1a2820;font-style:italic;}
+    .role-hl{font-size:10px;color:#C9A84C;font-family:'Helvetica Neue',Arial,sans-serif;margin-left:5px;}
+    .sc-toggle-btn{font-size:10px;color:#3a6a80;font-family:'Helvetica Neue',Arial,sans-serif;cursor:pointer;background:none;border:none;padding:0;margin-left:6px;vertical-align:middle;}
+    .ft-sc-wrap{display:none;overflow-x:auto;padding:6px 8px 8px;background:#070f14;}
+    .ft-sc-wrap.open{display:block;}
+    .tv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:1.5rem;}
+    .tvd{background:#152035;border:1px solid #1e3050;border-radius:8px;padding:0.8rem 1rem;}
+    .tvd-name{font-size:12px;color:#C9A84C;font-family:'Helvetica Neue',Arial,sans-serif;font-weight:500;margin-bottom:6px;}
+    .tvd-slot{font-size:11px;color:#6a8aaa;font-family:'Helvetica Neue',Arial,sans-serif;padding:3px 0;border-bottom:1px solid #1a2a40;}
+    .tvd-slot:last-child{border-bottom:none;}
+    .tvd-slot b{color:#9ab5cc;}
+    .pt-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .pt{width:100%;border-collapse:collapse;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;}
+    .pt th{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#3a5070;padding:6px 8px;border-bottom:1px solid #1e3050;font-weight:500;}
+    .pt th.r{text-align:right;} .pt td{padding:7px 8px;border-bottom:1px solid #111e30;color:#8fa3c0;} .pt td.r{text-align:right;} .pt td.g{color:#C9A84C;font-weight:500;}
+    .fn{font-size:12px;color:#7a8faf;font-family:'Helvetica Neue',Arial,sans-serif;margin-top:10px;line-height:1.6;}
+    .footer{text-align:center;padding:1.5rem 1rem 0;font-size:11px;color:#3a5070;font-family:'Helvetica Neue',Arial,sans-serif;border-top:1px solid #1e3050;margin-top:2rem;}
+    .rbtn{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.4);color:#C9A84C;padding:7px 18px;border-radius:6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;cursor:pointer;margin-top:0.75rem;}
+    .ab{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(79,200,122,0.12);color:#4fc87a;border:1px solid rgba(79,200,122,0.3);font-family:'Helvetica Neue',Arial,sans-serif;margin-left:8px;}
+    @media(max-width:600px){.stat-row,.db-row{grid-template-columns:repeat(2,1fr);}.pt-wrap{grid-template-columns:1fr;}.hero-title{font-size:22px;}.cut-card{flex-direction:column;align-items:flex-start;gap:0.5rem;}}
+  </style>
+</head>
+<body>
+
+<div class="hero-stripe"></div>
+<div class="hero-inner">
+  <div class="hero-eyebrow">Lufto Calcutta</div>
+  <div class="hero-title">2026 PGA Championship <span>Calcutta</span> · Team Kirby</div>
+  <div class="hero-sub">Aronimink Golf Club · Newtown Square, PA · May 14–17, 2026</div>
+  <div class="hero-badges">
+    <span class="hbadge">$9,442 total pot</span>
+    <span class="hbadge">52 golfers + The Field · 14 owners</span>
+    <span class="hbadge muted">108th PGA Championship</span>
+    <span class="hbadge">Team Kirby: 5 golfers · $1,157</span>
+  </div>
+</div>
+<div class="ticker">
+  <span><span class="t-dot"></span>Live scoring via ESPN</span>
+  <span><span class="t-dot"></span>Auto-refreshes every 5 min during play</span>
+  <span><span class="t-dot"></span>Last updated: <span id="last-upd">—</span></span>
+</div>
+
+<div class="content">
+
+  <div class="sec-head"><span class="sec">Projected cutline</span><div class="sec-line"></div></div>
+  <div class="cut-card">
+    <div class="cut-side">
+      <div class="cut-lbl">Projected cut</div>
+      <div class="cut-val" id="cut-val">—</div>
+    </div>
+    <div class="cut-info">
+      <div class="cut-rule">Top 70 + ties after R2</div>
+      <div class="cut-line" id="cut-line">Awaiting enough scores to project</div>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="sc gb"><div class="sc-lbl">Kirby invested</div><div class="sc-val g">$1,157</div><div class="sc-sub">5 golfers · 12.3% of pot</div></div>
+    <div class="sc"><div class="sc-lbl">Total pot</div><div class="sc-val">$9,442</div><div class="sc-sub">14 owners · 53 lots</div></div>
+    <div class="sc gb"><div class="sc-lbl">Kirby golfers above cut</div><div class="sc-val g" id="cut-stat">5 / 5</div><div class="sc-sub" id="cut-sub">Pre-tournament · all active</div></div>
+    <div class="sc"><div class="sc-lbl">Kirby projected payout</div><div class="sc-val" id="kirby-proj">—</div><div class="sc-sub" id="kirby-net">awaiting play</div></div>
+  </div>
+
+  <div class="sec-head"><span class="sec">Daily round bonuses · $283 each (3%)</span><div class="sec-line"></div></div>
+  <div class="db-row" id="db-row"></div>
+
+  <div class="sec-head"><span class="sec">Team Kirby · golfers, tee times &amp; TV</span><div class="sec-line"></div></div>
+  <div class="kirby-panel">
+    <div class="kp-head">
+      <div class="kp-icon">🐦</div>
+      <div>
+        <div class="kp-title">Team Kirby</div>
+        <div class="kp-sub">5 golfers · $1,157 invested · Click any golfer to expand scorecard · All times CT</div>
+      </div>
+    </div>
+    <div id="kirby-grid"></div>
+  </div>
+
+  <div class="sec-head"><span class="sec">Broadcast schedule</span><div class="sec-line"></div></div>
+  <div class="tv-grid">
+    <div class="tvd"><div class="tvd-name">Thursday, May 14 — Round 1</div><div class="tvd-slot">5:45 AM – 11 AM <b>ESPN+</b></div><div class="tvd-slot">11 AM – 6 PM <b>ESPN</b></div><div class="tvd-slot">6 – 7 PM <b>ESPN2</b></div></div>
+    <div class="tvd"><div class="tvd-name">Friday, May 15 — Round 2</div><div class="tvd-slot">5:45 AM – 11 AM <b>ESPN+</b></div><div class="tvd-slot">11 AM – 7 PM <b>ESPN</b></div></div>
+    <div class="tvd"><div class="tvd-name">Saturday, May 16 — Round 3</div><div class="tvd-slot">7 – 9 AM <b>ESPN / ESPN+</b></div><div class="tvd-slot">9 AM – noon <b>ESPN</b></div><div class="tvd-slot">Noon – 6 PM <b>CBS / Paramount+</b></div></div>
+    <div class="tvd"><div class="tvd-name">Sunday, May 17 — Final Round</div><div class="tvd-slot">7 – 9 AM <b>ESPN / ESPN+</b></div><div class="tvd-slot">9 AM – noon <b>ESPN</b></div><div class="tvd-slot">Noon – 6 PM <b>CBS / Paramount+</b></div></div>
+  </div>
+
+  <div class="sec-head"><span class="sec">Owner standings</span><div class="sec-line"></div></div>
+  <div class="own-grid" id="own-grid"></div>
+
+  <div class="sec-head"><span class="sec">Full field · individual golfer standings</span><div class="sec-line"></div></div>
+  <div style="overflow-x:auto;margin-bottom:1.5rem;">
+    <table class="ft">
+      <thead><tr>
+        <th style="width:34px">Pos</th>
+        <th>Golfer</th>
+        <th>Owner</th>
+        <th class="r">Score</th>
+        <th class="r">Cost</th>
+        <th class="r">Tee time</th>
+        <th class="r">Watch on</th>
+        <th class="r">Proj. payout</th>
+      </tr></thead>
+      <tbody id="field-body"></tbody>
+    </table>
+  </div>
+
+  <div class="sec-head"><span class="sec">Payout structure</span><div class="sec-line"></div></div>
+  <div class="pt-wrap">
+    <table class="pt"><thead><tr><th>Place</th><th class="r">% of pot</th><th class="r">Payout</th></tr></thead><tbody>
+      <tr><td><span class="pip p1" style="font-size:10px;">1</span> 1st</td><td class="r">25%</td><td class="r g">$2,361</td></tr>
+      <tr><td><span class="pip p2" style="font-size:10px;">2</span> 2nd</td><td class="r">15%</td><td class="r g">$1,416</td></tr>
+      <tr><td><span class="pip p3" style="font-size:10px;">3</span> 3rd</td><td class="r">10%</td><td class="r g">$944</td></tr>
+      <tr><td>4th</td><td class="r">8%</td><td class="r g">$755</td></tr>
+      <tr><td>5th</td><td class="r">7%</td><td class="r g">$661</td></tr>
+      <tr><td>6th</td><td class="r">6%</td><td class="r g">$567</td></tr>
+      <tr><td>7th</td><td class="r">5%</td><td class="r g">$472</td></tr>
+      <tr><td>8th</td><td class="r">4%</td><td class="r g">$378</td></tr>
+      <tr><td>9th</td><td class="r">4%</td><td class="r g">$378</td></tr>
+      <tr><td>10th</td><td class="r">4%</td><td class="r g">$378</td></tr>
+    </tbody></table>
+    <table class="pt"><thead><tr><th>Round bonus</th><th class="r">% of pot</th><th class="r">Payout</th></tr></thead><tbody>
+      <tr><td>R1 Leader</td><td class="r">3%</td><td class="r g">$283</td></tr>
+      <tr><td>R2 Low Score</td><td class="r">3%</td><td class="r g">$283</td></tr>
+      <tr><td>R3 Low Score</td><td class="r">3%</td><td class="r g">$283</td></tr>
+      <tr><td>R4 Low Score</td><td class="r">3%</td><td class="r g">$283</td></tr>
+      <tr><td colspan="3" style="color:#5a7090;font-size:11px;padding-top:8px;border:none;">Round bonuses split evenly among golfers tied for the round's low score. R1 Leader = lowest cumulative score after Round 1.</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="footer">
+    Lufto Calcutta · 2026 PGA Championship · Team Kirby<br>
+    <span style="margin-top:4px;display:inline-block;">Scores via live ESPN lookup <span class="ab">auto-refresh every 5 min</span></span><br>
+    <button class="rbtn" onclick="loadScores()">↻ Refresh now</button>
+  </div>
+
+</div>
+
+<script>
+// === Tournament constants ====================================================
+const POT = 9442;
+const PLACEMENT_PCT = [0.25,0.15,0.10,0.08,0.07,0.06,0.05,0.04,0.04,0.04]; // 1st-10th
+const DAILY_PCT = 0.03; // each of R1 leader + R2/R3/R4 low
+const PARS = [4,4,3,4,5,4,3,4,4,4,5,3,4,4,3,4,5,4];
+const FRONT_PAR = PARS.slice(0,9).reduce((a,b)=>a+b,0);
+const BACK_PAR  = PARS.slice(9).reduce((a,b)=>a+b,0);
+const TOTAL_PAR = FRONT_PAR + BACK_PAR;
+
+// === Live data config ========================================================
+const ESPN_LEADERBOARD_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard';
+const PROXY_URL = ''; // set to a relay URL if a host/CDN blocks ESPN via CORS
+function viaProxy(u){ return PROXY_URL ? PROXY_URL + encodeURIComponent(u) : u; }
+
+function nameKey(n){ return (n||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+
+// ESPN displayName key -> roster nameKey. Lets us match golfers whose ESPN name
+// differs from the auction sheet (Jon Rahm vs John Rahm, etc.)
+const nameAliases = {
+  'jonrahm':         'johnrahm',
+  'robertmacintyre': 'robertmcintyre',
+  'mattfitzpatrick': 'matthewfitzpatrick',
+};
+
+function tvForDate(d){
+  const wd=d.toLocaleString('en-US',{timeZone:'America/Chicago',weekday:'short'});
+  const h24=parseInt(d.toLocaleString('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:false}),10);
+  if(wd==='Thu'||wd==='Fri') return h24<11?'ESPN+':(h24<18?'ESPN':'ESPN2');
+  if(wd==='Sat'||wd==='Sun'){
+    if(h24<9) return 'ESPN+/ESPN';
+    if(h24<12) return 'ESPN';
+    return 'CBS';
+  }
+  return '—';
+}
+
+function buildTTFromCompetitor(c){
+  const status=c?.status;
+  if(!status) return null;
+  const day=['Thu','Fri','Sat','Sun'];
+  const period=status.period||1;
+  const state=(status.type?.state||'').toLowerCase();
+  const fmt=d=>d.toLocaleTimeString('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit',hour12:true});
+  if(state==='post'){
+    const next=(c.linescores||[]).find(ls=>(ls.period||0)>period && ls.teeTime);
+    if(next){
+      const np=next.period;
+      const d=new Date(next.teeTime);
+      return { label:`${day[np-1]||`R${np}`} R${np}`, time:fmt(d), tv:tvForDate(d) };
+    }
+    return { label:`${day[period-1]||`R${period}`} R${period}`, time:'Final', tv:'—' };
+  }
+  const label=`${day[period-1]||`R${period}`} R${period}`;
+  if(state==='in'){
+    const thru=status.thru ?? status.displayThru;
+    return { label, time: thru!=null ? `Thru ${thru}` : 'On course', tv:'—' };
+  }
+  if(status.teeTime){
+    const d=new Date(status.teeTime);
+    return { label, time:fmt(d), tv:tvForDate(d) };
+  }
+  return { label, time:'—', tv:'—' };
+}
+
+function parseRelScore(v){
+  if(v===undefined||v===null) return null;
+  if(typeof v==='number') return v;
+  const s=String(v).trim().toUpperCase();
+  if(!s) return null;
+  if(s==='E'||s==='EVEN') return 0;
+  if(['MC','CUT','WD','DQ','DNS','-'].includes(s)) return null;
+  const m=s.match(/^([+-]?)(\d+)$/);
+  if(!m) return null;
+  return m[1]==='-' ? -parseInt(m[2],10) : parseInt(m[2],10);
+}
+
+// === Auction roster ==========================================================
+// Each row drafted in the calcutta. The "Field" bucket (all undrafted players)
+// is attributed to its single buyer separately.
+const auction = [
+  {name:'Scottie Scheffler',  owner:'Cameron Kirby',  price:697},
+  {name:'Rory McIlroy',       owner:'Jordan Yeiser',  price:447},
+  {name:'Cameron Young',      owner:'Kyle Griffin',   price:437},
+  {name:'Ludvig Aberg',       owner:'Brian Luftman',  price:269},
+  {name:'Xander Schauffele',  owner:'David McDonald', price:263},
+  {name:'Matthew Fitzpatrick',owner:'Kiko Malouf',    price:252},
+  {name:'Rickie Fowler',      owner:'Matt Maggard',   price:251},
+  {name:'Patrick Cantlay',    owner:'Kiko Malouf',    price:249},
+  {name:'Bryson DeChambeau',  owner:'Kyle Griffin',   price:246},
+  {name:'John Rahm',          owner:'Trevor Galko',   price:238},
+  {name:'Tommy Fleetwood',    owner:'Trevor Galko',   price:237},
+  {name:'Collin Morikawa',    owner:'Nick Sierra',    price:237},
+  {name:'Russell Henley',     owner:'Matt Maggard',   price:236},
+  {name:'Brooks Koepka',      owner:'Kiko Malouf',    price:213},
+  {name:'Chris Gotterup',     owner:'Kevin Luftman',  price:209},
+  {name:'Jordan Spieth',      owner:'David McDonald', price:201},
+  {name:'Sam Burns',          owner:'Trevor Galko',   price:182},
+  {name:'Justin Thomas',      owner:'Ethan Horn',     price:182},
+  {name:'Ben Griffin',        owner:'Philip Collis',  price:181},
+  {name:'Min Woo Lee',        owner:'Nate Belt',      price:178},
+  {name:'Justin Rose',        owner:'Trevor Galko',   price:172},
+  {name:'Shane Lowry',        owner:'Cameron Kirby',  price:170},
+  {name:'Tyrrell Hatton',     owner:'Kiko Malouf',    price:170},
+  {name:'Nicolai Hojgaard',   owner:'Cameron Kirby',  price:166},
+  {name:'Patrick Reed',       owner:'A Cookie',       price:156},
+  {name:'Si Woo Kim',         owner:'Matt Maggard',   price:148},
+  {name:'JJ Spaun',           owner:'David McDonald', price:138},
+  {name:'Sepp Straka',        owner:'Kiko Malouf',    price:133},
+  {name:'Kurt Kitayama',      owner:'David McDonald', price:128},
+  {name:'Viktor Hovland',     owner:'David McDonald', price:125},
+  {name:'Gary Woodland',      owner:'A Cookie',       price:123},
+  {name:'Corey Conners',      owner:'David McDonald', price:118},
+  {name:'Adam Scott',         owner:'Kevin Luftman',  price:115},
+  {name:'Akshay Bhatia',      owner:'Kiko Malouf',    price:111},
+  {name:'Robert McIntyre',    owner:'Trevor Galko',   price:109},
+  {name:'Alex Fitzpatrick',   owner:'Kiko Malouf',    price:107},
+  {name:'Harris English',     owner:'Cameron Kirby',  price:104},
+  {name:'Joaquin Niemann',    owner:'A Cookie',       price:100},
+  {name:'Jacob Bridgeman',    owner:'Kiko Malouf',    price:97},
+  {name:'Keegan Bradley',     owner:'Kevin Luftman',  price:89},
+  {name:'Alex Smalley',       owner:'Matt Maggard',   price:79},
+  {name:'Harry Hall',         owner:'Nick Sierra',    price:70},
+  {name:'Matt McCarty',       owner:'Trevor Galko',   price:66},
+  {name:'Maverick McNealy',   owner:'Trevor Galko',   price:60},
+  {name:'David Puig',         owner:'Trevor Galko',   price:57},
+  {name:'Jason Day',          owner:'A Cookie',       price:53},
+  {name:'Hideki Matsuyama',   owner:'Philip Collis',  price:50},
+  {name:'Kristoffer Reitan',  owner:'Ethan Horn',     price:45},
+  {name:'Sungjae Im',         owner:'Kyle Griffin',   price:28},
+  {name:'Thomas Detry',       owner:'A Cookie',       price:26},
+  {name:'Sahith Theegala',    owner:'A Cookie',       price:25},
+  {name:'Michael Thorbjornsen',owner:'Cameron Kirby', price:20},
+];
+const FIELD_OWNER = 'Kevin Luftman';
+const FIELD_PRICE = 879;
+const FEATURED_OWNER = 'Cameron Kirby';
+
+// Per-golfer owner lookup (keyed by normalized name)
+const golferOwner = {};
+auction.forEach(a => { golferOwner[nameKey(a.name)] = a.owner; });
+
+// Owner aggregations: name -> { name, golfers:[], invested, ownsField }
+const owners = {};
+auction.forEach(a => {
+  if(!owners[a.owner]) owners[a.owner] = { name:a.owner, golfers:[], invested:0, ownsField:false };
+  owners[a.owner].golfers.push(a.name);
+  owners[a.owner].invested += a.price;
+});
+if(!owners[FIELD_OWNER]) owners[FIELD_OWNER] = { name:FIELD_OWNER, golfers:[], invested:0, ownsField:false };
+owners[FIELD_OWNER].invested += FIELD_PRICE;
+owners[FIELD_OWNER].ownsField = true;
+
+// === Live-data state =========================================================
+let liveScores={}, scorecards={}, liveTT={}, liveRoundScores={1:[],2:[],3:[],4:[]}, fieldGolfers=[];
+let tournamentStarted=false;
+let projectedCutline=null, cutInsideCount=0, cutFieldCount=0;
+
+// === Helpers =================================================================
+function getScore(name){ const v=liveScores[nameKey(name)]; return v===undefined?null:v; }
+function getSCData(name){ return scorecards[nameKey(name)]||null; }
+function ownerForGolfer(name){ return golferOwner[nameKey(name)] || FIELD_OWNER; }
+
+function fmtScoreCell(s){
+  if(s===null) return '<span style="color:#3a5a45">—</span>';
+  if(s===0) return '<span style="color:#8fa3c0">E</span>';
+  if(s<0) return `<span style="color:#4fc87a">${s}</span>`;
+  return `<span style="color:#e05a5a">+${s}</span>`;
+}
+function sc(s){return s===null?'e':s<0?'u':s>0?'o':'e';}
+function ss(s){return s===null?'—':s===0?'E':s<0?String(s):'+'+s;}
+function fmtDollars(n){ return '$'+Math.round(n).toLocaleString(); }
+function fmtRel(n){ return n===0?'E':n>0?'+'+n:String(n); }
+
+function holeClass(s,par){if(!s)return'hole-blank';const d=s-par;if(d<=-2)return'eagle';if(d===-1)return'birdie';if(d===0)return'par-score';if(d===1)return'bogey';return'dbl-bogey';}
+
+function buildScorecard(name,rounds){
+  const legend=`<div class="sc-legend"><span class="sc-legend-item"><span class="leg-eg"></span>Eagle</span><span class="sc-legend-item"><span class="leg-bi"></span>Birdie</span><span class="sc-legend-item" style="color:#8fa3c0;font-size:10px;">— Par</span><span class="sc-legend-item"><span class="leg-bo"></span>Bogey</span><span class="sc-legend-item"><span class="leg-db"></span>Dbl+</span></div>`;
+  const hdr=`<tr><th class="label">Rnd</th>${[1,2,3,4,5,6,7,8,9].map(h=>`<th>${h}</th>`).join('')}<th class="section">Out</th>${[10,11,12,13,14,15,16,17,18].map(h=>`<th>${h}</th>`).join('')}<th class="section">In</th><th class="section">Tot</th></tr>`;
+  const parRow=`<tr><td class="label par-row">Par</td>${PARS.slice(0,9).map(p=>`<td class="par-row">${p}</td>`).join('')}<td class="section par-row">${FRONT_PAR}</td>${PARS.slice(9).map(p=>`<td class="par-row">${p}</td>`).join('')}<td class="section par-row">${BACK_PAR}</td><td class="section par-row">${TOTAL_PAR}</td></tr>`;
+  const rl=['R1','R2','R3','R4'];
+  let body='';let hasData=false;
+  if(rounds)rounds.forEach((holes,ri)=>{
+    if(!holes)return;hasData=true;
+    const f=holes.slice(0,9),b=holes.slice(9);
+    const ft=f.reduce((a,x)=>a+(x||0),0),bt=b.reduce((a,x)=>a+(x||0),0),tot=ft+bt;
+    const vs=v=>v===0?'E':v>0?'+'+v:String(v);
+    body+=`<tr><td class="label" style="color:#7acce8;">${rl[ri]}</td>${f.map((s,i)=>`<td><span class="hole-score ${holeClass(s,PARS[i])}">${s||''}</span></td>`).join('')}<td class="total">${ft||''}<br><span style="font-size:9px;color:#4a7060;">${ft?vs(ft-FRONT_PAR):''}</span></td>${b.map((s,i)=>`<td><span class="hole-score ${holeClass(s,PARS[9+i])}">${s||''}</span></td>`).join('')}<td class="total">${bt||''}<br><span style="font-size:9px;color:#4a7060;">${bt?vs(bt-BACK_PAR):''}</span></td><td class="total" style="color:#C9A84C;">${tot||''}<br><span style="font-size:9px;">${tot?vs(tot-TOTAL_PAR):''}</span></td></tr>`;
+  });
+  if(!hasData)body=`<tr><td class="label" style="color:#3a5070;">—</td>${Array(19).fill('<td class="hole-blank">·</td>').join('')}<td class="hole-blank">·</td></tr>`;
+  return legend+`<div style="overflow-x:auto;padding:4px 0;"><table class="scorecard"><thead>${hdr}${parRow}</thead><tbody>${body}</tbody></table></div>`;
+}
+
+function getActiveTT(name){
+  const live = liveTT[nameKey(name)];
+  if(live) return live;
+  return {time:'—',tv:'—',label:'Thu R1'};
+}
+
+// === Placement assignment ====================================================
+// Returns array of { name, owner, score, rank, placementPay }, sorted by score asc.
+// "Rank" is 1-indexed; null scores get null rank and go to the end.
+function rankedField(){
+  const rows=[];
+  // 1) drafted golfers
+  for(const a of auction){
+    rows.push({ name:a.name, owner:a.owner, isDrafted:true, cost:a.price, score:getScore(a.name) });
+  }
+  // 2) field golfers (from ESPN, undrafted)
+  for(const n of fieldGolfers){
+    rows.push({ name:n, owner:FIELD_OWNER, isDrafted:false, cost:0, score:getScore(n) });
+  }
+  rows.sort((x,y)=>{ if(x.score===null&&y.score===null) return 0; if(x.score===null) return 1; if(y.score===null) return -1; return x.score-y.score; });
+  rows.forEach((r,i)=>{
+    r.rank = r.score===null ? null : i+1;
+    r.placementPay = (r.rank!==null && r.rank<=PLACEMENT_PCT.length) ? Math.round(POT*PLACEMENT_PCT[r.rank-1]) : 0;
+  });
+  return rows;
+}
+
+// === Daily bonus computation =================================================
+// Returns array of length 4. Each entry: { score, winners:[{name,owner}], status, payoutEach }
+// status: 'none' | 'live' | 'locked'
+// payoutEach: payout per golfer (3% of pot split by tie count)
+function computeRoundLows(competitions){
+  const status=competitions?.status?.type?.state || '';
+  const eventPeriod=competitions?.status?.period || 0;
+  // liveRoundScores is populated by loadScores from each competitor's linescores
+  const out=[null,null,null,null];
+  for(let i=0;i<4;i++){
+    const arr=liveRoundScores[i+1]||[];
+    if(!arr.length){ out[i]={ status:'none' }; continue; }
+    const min=Math.min(...arr.map(x=>x.rel));
+    const winnersRaw=arr.filter(x=>x.rel===min);
+    const winners=winnersRaw.map(w=>({ name:w.name, owner:ownerForGolfer(w.name) }));
+    // Round is "locked" once event status period has advanced past it, or event is post and we're on/after the last live round
+    const roundLocked = (eventPeriod > (i+1)) || (status==='post' && eventPeriod>=(i+1));
+    out[i] = {
+      score: min,
+      winners,
+      status: roundLocked ? 'locked' : 'live',
+      payoutEach: (POT * DAILY_PCT) / winners.length,
+      tieCount: winners.length,
+    };
+  }
+  return out;
+}
+
+// === Renderers ===============================================================
+function renderDailyBonuses(rounds){
+  const labels=['R1 Leader','R2 Low','R3 Low','R4 Low'];
+  const row=document.getElementById('db-row');row.innerHTML='';
+  rounds.forEach((r,i)=>{
+    const featured = r && r.winners && r.winners.some(w=>w.owner===FEATURED_OWNER);
+    let cls='db';
+    if(r && r.status==='live') cls+=' live';
+    else if(r && r.status==='locked') cls+=' locked';
+    if(featured) cls+=' fk';
+    let body;
+    if(!r || r.status==='none' || !r.winners){
+      body=`<div class="db-head"><span class="db-lbl">${labels[i]}</span><span class="db-status none">Awaiting</span></div><div class="db-score e">—</div><div class="db-who">No scores yet · $283 bonus</div>`;
+    }else{
+      const winnersTxt = r.winners.slice(0,3).map(w=>`<b>${w.name}</b> <span style="color:#5a7090">(${w.owner})</span>`).join(' · ');
+      const more = r.winners.length>3 ? ` <span style="color:#5a7090">+${r.winners.length-3} tied</span>` : '';
+      const statusCls = r.status==='locked'?'locked':'live';
+      const statusTxt = r.status==='locked'?'Locked':'Live';
+      const payTxt = r.tieCount>1 ? `${fmtDollars(r.payoutEach)} each (${r.tieCount}-way tie)` : '$283';
+      body=`<div class="db-head"><span class="db-lbl">${labels[i]}</span><span class="db-status ${statusCls}">${statusTxt}</span></div><div class="db-score ${sc(r.score)}">${ss(r.score)}</div><div class="db-who">${winnersTxt}${more}</div><div class="db-pay" style="margin-top:4px;">${payTxt}</div>`;
+    }
+    const div=document.createElement('div');div.className=cls;div.innerHTML=body;
+    row.appendChild(div);
+  });
+}
+
+function renderKirby(){
+  const grid=document.getElementById('kirby-grid');grid.innerHTML='';
+  const kirbyGolfers = owners[FEATURED_OWNER]?.golfers || [];
+  const ranked = rankedField();
+  const rankByName = {}; ranked.forEach(r => { rankByName[nameKey(r.name)] = r; });
+
+  // Sort Kirby's golfers by current rank (live data) — null ranks last.
+  const enriched = kirbyGolfers.map(g => {
+    const a = auction.find(x => x.name === g);
+    return {
+      name:g, cost:a?.price||0, score:getScore(g),
+      tt:getActiveTT(g), rank:rankByName[nameKey(g)]?.rank, pay:rankByName[nameKey(g)]?.placementPay||0,
+    };
+  }).sort((a,b) => {
+    if(a.score===null&&b.score===null) return b.cost-a.cost;
+    if(a.score===null) return 1;
+    if(b.score===null) return -1;
+    return a.score-b.score;
+  });
+
+  enriched.forEach((g, idx) => {
+    const uid = `kp-${idx}`;
+    const card = document.createElement('div'); card.className='kp-card';
+    const rankBadge = g.rank!=null ? `<span style="color:#7acce8;font-size:11px;">T${g.rank}</span>` : `<span style="color:#5a7090;font-size:11px;">—</span>`;
+    card.innerHTML = `
+      <div class="kp-row" onclick="toggleSc('${uid}')">
+        <div class="kp-name">
+          <div class="kp-gname">${g.name} <span class="expand-arrow" id="arr-${uid}">▾</span></div>
+          <div class="kp-meta">${rankBadge} · paid $${g.cost} · proj $${g.pay.toLocaleString()}</div>
+        </div>
+        <div class="kp-tee"><div class="kp-tee-time">${g.tt.label} · ${g.tt.time}</div><div class="kp-tee-tv">${g.tt.tv}</div></div>
+        <div class="kp-score ${sc(g.score)}">${ss(g.score)}</div>
+      </div>
+      <div class="scorecard-wrap" id="${uid}">${buildScorecard(g.name,getSCData(g.name))}</div>`;
+    grid.appendChild(card);
+  });
+}
+function toggleSc(uid){ const w=document.getElementById(uid),a=document.getElementById('arr-'+uid); if(!w) return; const o=w.classList.toggle('open'); if(a) a.classList.toggle('open',o); }
+
+function renderField(rounds){
+  const ranked = rankedField();
+  const tbody = document.getElementById('field-body'); tbody.innerHTML='';
+  ranked.forEach((r,i) => {
+    const isKirby = r.owner===FEATURED_OWNER;
+    const isField = !r.isDrafted;
+    const pos = r.rank!=null ? r.rank : '—';
+    const pc = r.rank===1?'p1':r.rank===2?'p2':r.rank===3?'p3':'pn';
+    const tt = getActiveTT(r.name);
+    const ftUid = `ft-sc-${i}`;
+    const tr = document.createElement('tr');
+    if(isKirby) tr.className='fk';
+    else if(isField) tr.className='field-row';
+    const ownerSp = isKirby ? 'sp-k' : (isField ? 'sp-f' : 'sp-o');
+    const ownerLabel = isField ? `The Field (${FIELD_OWNER})` : r.owner;
+    const costTxt = r.isDrafted ? '$'+r.cost.toLocaleString() : '—';
+    tr.innerHTML = `
+      <td><span class="pip ${pc}">${pos}</span></td>
+      <td><span style="color:${isKirby?'#e8d4a0':(isField?'#7a8faf':'#c8d4e8')};font-size:13px;">${r.name}</span>${isKirby?'<span class="role-hl">Team Kirby</span>':''}<button class="sc-toggle-btn" onclick="toggleSc('${ftUid}',this)">▾ scorecard</button></td>
+      <td><span class="sp ${ownerSp}">${ownerLabel}</span></td>
+      <td class="r">${fmtScoreCell(r.score)}</td>
+      <td class="r" style="font-size:12px;color:#4a6080;">${costTxt}</td>
+      <td class="r" style="font-size:11px;color:#7acce8;">${tt.label} · ${tt.time}</td>
+      <td class="r" style="font-size:11px;color:#7a9cd4;">${tt.tv}</td>
+      <td class="r" style="color:${isKirby?'#4fc87a':'#8fa3c0'};font-weight:${isKirby?'500':'400'};">$${r.placementPay.toLocaleString()}</td>`;
+    tbody.appendChild(tr);
+    const scTr=document.createElement('tr');scTr.className='sc-row';
+    scTr.innerHTML=`<td colspan="8"><div class="ft-sc-wrap" id="${ftUid}">${buildScorecard(r.name,getSCData(r.name))}</div></td>`;
+    tbody.appendChild(scTr);
+  });
+  renderOwnerStandings(ranked,rounds);
+  updateKirbyStats(ranked,rounds);
+}
+
+function renderOwnerStandings(ranked, rounds){
+  // Sum placement payouts per owner from ranked list
+  const totals = {};
+  Object.keys(owners).forEach(o => totals[o] = { placement:0, daily:0 });
+  ranked.forEach(r => {
+    if(r.placementPay && totals[r.owner]) totals[r.owner].placement += r.placementPay;
+  });
+  if(rounds){
+    rounds.forEach(rd => {
+      if(!rd || !rd.winners) return;
+      rd.winners.forEach(w => { if(totals[w.owner]) totals[w.owner].daily += rd.payoutEach; });
+    });
+  }
+  const all = Object.values(owners).map(o => {
+    const t = totals[o.name];
+    const total = (t?.placement||0) + (t?.daily||0);
+    return { ...o, projected: total, net: total - o.invested };
+  });
+  all.sort((a,b) => b.projected - a.projected || b.invested - a.invested);
+  const grid = document.getElementById('own-grid'); grid.innerHTML='';
+  all.forEach(o => {
+    const isK = o.name===FEATURED_OWNER;
+    const div = document.createElement('div'); div.className = `own${isK?' fk':''}`;
+    const golferCount = o.golfers.length + (o.ownsField?1:0);
+    const subParts = [`${golferCount} ${o.ownsField?'lot'+(golferCount!==1?'s':''):('golfer'+(golferCount!==1?'s':''))}`];
+    if(o.ownsField) subParts.push('+ The Field');
+    const netHtml = o.projected ? (o.net>=0 ? `<span style="color:#4fc87a">+${fmtDollars(o.net)} net</span>` : `<span style="color:#e05a5a">-${fmtDollars(Math.abs(o.net))} net</span>`) : 'awaiting play';
+    div.innerHTML = `<div class="own-name${isK?' fk':''}">${isK?'🐦 ':''}${o.name}</div><div class="own-meta">Invested ${fmtDollars(o.invested)} · ${o.golfers.length} golfer${o.golfers.length!==1?'s':''}${o.ownsField?' + Field':''}</div><div class="own-pay">${o.projected?fmtDollars(o.projected):'—'}</div><div class="own-net">${netHtml}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+function updateKirbyStats(ranked, rounds){
+  const kInvested = owners[FEATURED_OWNER]?.invested || 0;
+  // Placement total for Kirby:
+  const placement = ranked.filter(r => r.owner===FEATURED_OWNER).reduce((s,r) => s + (r.placementPay||0), 0);
+  // Daily bonus total for Kirby:
+  let daily = 0;
+  (rounds||[]).forEach(rd => { if(rd && rd.winners) rd.winners.forEach(w => { if(w.owner===FEATURED_OWNER) daily += rd.payoutEach; }); });
+  const total = placement + daily;
+  document.getElementById('kirby-proj').textContent = total ? fmtDollars(total) : '—';
+  const net = total - kInvested;
+  document.getElementById('kirby-net').innerHTML = total
+    ? (net>=0 ? `<span style="color:#4fc87a">+${fmtDollars(net)} net</span>` : `<span style="color:#e05a5a">-${fmtDollars(Math.abs(net))} net</span>`)
+    : 'awaiting play';
+
+  // "Kirby above cut" stat (top stat-row card)
+  const kirbyGolfers = owners[FEATURED_OWNER]?.golfers || [];
+  const total5 = kirbyGolfers.length;
+  const cs = document.getElementById('cut-stat'), csub = document.getElementById('cut-sub');
+  if(!tournamentStarted){ cs.textContent = total5+' / '+total5; csub.textContent = 'Pre-tournament · all active'; return; }
+  if(projectedCutline===null){
+    const withScores = kirbyGolfers.filter(n => getScore(n)!==null).length;
+    cs.textContent = withScores+' / '+total5; csub.textContent = 'In play · cut not projected yet';
+  } else {
+    const inside = kirbyGolfers.filter(n => { const s=getScore(n); return s!==null && s<=projectedCutline; }).length;
+    cs.textContent = inside+' / '+total5; csub.textContent = 'Inside projected cut';
+  }
+}
+
+function renderCutline(){
+  const v=document.getElementById('cut-val'),line=document.getElementById('cut-line');
+  if(!tournamentStarted){ v.textContent='—'; line.textContent='Tournament not yet underway'; return; }
+  if(projectedCutline===null){ v.textContent='—'; line.textContent=`Awaiting more scores · ${cutFieldCount} of 156 in`; return; }
+  v.textContent = projectedCutline===0 ? 'E' : (projectedCutline>0?'+'+projectedCutline:String(projectedCutline));
+  const kirbyAll = owners[FEATURED_OWNER]?.golfers || [];
+  const nIn = kirbyAll.filter(n => { const s=getScore(n); return s!==null && s<=projectedCutline; }).length;
+  line.innerHTML = `<b>${cutInsideCount}</b> golfers currently at or under · <b>${nIn}</b> of ${kirbyAll.length} Kirby golfers inside`;
+}
+
+// === Scorecard fetch =========================================================
+function extractRounds(playerSummary){
+  const out=[null,null,null,null];
+  try{
+    const rounds = playerSummary.rounds || playerSummary.athlete?.rounds || playerSummary.competitor?.rounds || playerSummary.scorecards || [];
+    rounds.forEach(r=>{
+      const rIdx = ((r.period||r.round||r.roundNumber||1)-1);
+      if(rIdx<0||rIdx>3) return;
+      const cells = r.linescores||r.holes||r.scores||[];
+      if(!cells.length) return;
+      const holes = new Array(18).fill(null);
+      cells.forEach(h=>{
+        if(!h||typeof h!=='object') return;
+        const hole = h.period||h.holeNumber||h.hole;
+        const v = h.value??h.score??h.strokes??h.displayValue;
+        const n = parseInt(v,10);
+        if(hole>=1&&hole<=18&&!isNaN(n)) holes[hole-1]=n;
+      });
+      if(holes.some(x=>x!==null)) out[rIdx]=holes;
+    });
+  }catch(_){}
+  return out;
+}
+async function fetchScorecard(eventId, athleteId){
+  const url=`https://site.web.api.espn.com/apis/site/v2/sports/golf/pga/leaderboard/${eventId}/competitorsummary/${athleteId}`;
+  const r=await fetch(viaProxy(url),{cache:'no-store'});
+  if(!r.ok) throw new Error('scorecard HTTP '+r.status);
+  return r.json();
+}
+
+// === Main fetch loop =========================================================
+async function loadScores(){
+  const lu=document.getElementById('last-upd');
+  lu.textContent='fetching...';
+  try{
+    const res=await fetch(viaProxy(ESPN_LEADERBOARD_URL),{cache:'no-store'});
+    if(!res.ok) throw new Error('leaderboard HTTP '+res.status);
+    const data=await res.json();
+    const event=(data.events||[])[0];
+    if(!event) throw new Error('no active event in leaderboard response');
+    const comp=(event.competitions||[])[0]||{};
+    const state=(comp.status?.type?.state||'').toLowerCase();
+    tournamentStarted = state==='in' || state==='post';
+
+    const newScores={}, newTT={}, athleteIds={};
+    const newFieldGolfers=[];
+    const newRoundScores={1:[],2:[],3:[],4:[]};
+    const writeBoth=(map,key,val)=>{ map[key]=val; const a=nameAliases[key]; if(a) map[a]=val; };
+
+    for(const c of (comp.competitors||[])){
+      const ath=c.athlete||{};
+      const espnName = ath.displayName||ath.fullName||ath.shortName||'';
+      const key = nameKey(espnName);
+      if(!key) continue;
+      const rosterKey = nameAliases[key] || key;
+      // Field membership: any ESPN competitor NOT in our auction roster joins The Field
+      if(!golferOwner[rosterKey]) newFieldGolfers.push(espnName);
+
+      const desc=(c.status?.type?.description||'').toUpperCase();
+      const missedCut = !!c.status?.cut || desc.includes('CUT') || desc.includes('WD') || desc.includes('WITHDR') || desc.includes('DISQ');
+      const tt=buildTTFromCompetitor(c);
+      if(tt) writeBoth(newTT,key,tt);
+      if(missedCut) continue;
+      const rel=parseRelScore(c.score?.displayValue ?? c.score);
+      if(rel!==null) writeBoth(newScores,key,rel);
+      if(ath.id) writeBoth(athleteIds,key,ath.id);
+
+      // Per-round single-round to-par for daily bonus calc
+      (c.linescores||[]).forEach(ls => {
+        const p = ls.period;
+        if(p<1||p>4) return;
+        const rRel = parseRelScore(ls.displayValue);
+        if(rRel===null) return;
+        newRoundScores[p].push({ name:espnName, rel:rRel });
+      });
+    }
+    liveScores=newScores;
+    liveTT=newTT;
+    liveRoundScores=newRoundScores;
+    fieldGolfers=newFieldGolfers;
+
+    // Projected cutline (top 70 + ties)
+    const fieldScores=[];
+    for(const c of (comp.competitors||[])){
+      const desc=(c.status?.type?.description||'').toUpperCase();
+      if(desc.includes('CUT')||desc.includes('WD')||desc.includes('WITHDR')||desc.includes('DISQ')) continue;
+      const rel=parseRelScore(c.score?.displayValue ?? c.score);
+      if(rel!==null) fieldScores.push(rel);
+    }
+    fieldScores.sort((a,b)=>a-b);
+    cutFieldCount=fieldScores.length;
+    projectedCutline = fieldScores.length>=70 ? fieldScores[69] : null;
+    cutInsideCount = projectedCutline===null ? 0 : fieldScores.filter(s=>s<=projectedCutline).length;
+
+    // Per-hole scorecards for Kirby's golfers
+    const eventId=event.id;
+    const newCards={};
+    if(eventId){
+      const kirbyNames = owners[FEATURED_OWNER]?.golfers || [];
+      await Promise.all(kirbyNames.map(async fullName => {
+        const k = nameKey(fullName);
+        const aid = athleteIds[k];
+        if(!aid) return;
+        try {
+          const sd = await fetchScorecard(eventId, aid);
+          const rounds = extractRounds(sd);
+          if(rounds.some(r => r && r.length)) newCards[k] = rounds;
+        } catch(_){}
+      }));
+    }
+    scorecards=newCards;
+
+    lu.textContent=new Date().toLocaleTimeString();
+
+    // Render with fresh data + computed daily bonus rounds
+    const rounds = computeRoundLows(comp);
+    renderDailyBonuses(rounds);
+    renderKirby();
+    renderField(rounds);
+    renderCutline();
+  } catch(e) {
+    console.warn('loadScores failed:', e);
+    lu.textContent='unable to fetch scores';
+    renderDailyBonuses([null,null,null,null]);
+    renderKirby();
+    renderField(null);
+    renderCutline();
+  }
+}
+
+// === Init ====================================================================
+renderDailyBonuses([null,null,null,null]);
+renderKirby();
+renderField(null);
+loadScores();
+setInterval(loadScores, 300000); // refresh every 5 min
+</script>
+</body>
+</html>

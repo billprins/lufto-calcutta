@@ -1,0 +1,11 @@
+# Netlify config for the Lufto Calcutta tracker.
+# Pure static site: no build command, publish the repo root.
+
+[build]
+  publish = "."
+
+# Keep HTML uncached so live-scoring deploys propagate immediately.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
