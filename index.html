@@ -272,7 +272,23 @@ const ESPN_LEADERBOARD_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf
 const PROXY_URL = ''; // set to a relay URL if a host/CDN blocks ESPN via CORS
 function viaProxy(u){ return PROXY_URL ? PROXY_URL + encodeURIComponent(u) : u; }
 
-function nameKey(n){ return (n||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+// Canonical roster key. Strips diacritics (é→e, ñ→n) via NFD decomposition, then
+// maps separate Scandinavian/Germanic code points that NFD leaves intact (ø→o, æ→ae,
+// ß→ss, etc.). Required so ESPN's "Højgaard" matches the auction's "Hojgaard".
+function nameKey(n){
+  return (n||'')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g,'')
+    .replace(/ø/g,'o')
+    .replace(/æ/g,'ae')
+    .replace(/œ/g,'oe')
+    .replace(/ð/g,'d')
+    .replace(/þ/g,'th')
+    .replace(/ß/g,'ss')
+    .replace(/đ/g,'d')
+    .replace(/[^a-z0-9]/g,'');
+}
 
 // ESPN displayName key -> roster nameKey. Lets us match golfers whose ESPN name
 // differs from the auction sheet (Jon Rahm vs John Rahm, etc.)
