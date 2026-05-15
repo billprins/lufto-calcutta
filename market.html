@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lufto Calcutta · Mark-to-Market · Team Pervert</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0d1728; font-family: Georgia, 'Times New Roman', serif; padding-bottom: 3rem; }
+    .hero-stripe { height: 6px; background: #C9A84C; }
+    .hero-inner { padding: 1.5rem 1.5rem 1rem; text-align: center; background: #0d1728; border-bottom: 1px solid #C9A84C; }
+    .hero-eyebrow { font-size: 11px; letter-spacing: 0.18em; color: #C9A84C; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .hero-title { font-size: 26px; color: #fff; font-weight: normal; letter-spacing: 0.02em; margin-bottom: 0.3rem; }
+    .hero-title span { color: #C9A84C; }
+    .hero-sub { font-size: 12px; color: #7a8faf; font-family: 'Helvetica Neue', Arial, sans-serif; margin-bottom: 1rem; }
+    .nav { background: #08111e; border-bottom: 1px solid #1e3050; padding: 0.5rem 1rem; text-align: center; }
+    .nav a { display: inline-block; padding: 6px 16px; margin: 0 4px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #7a8faf; text-decoration: none; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .nav a:hover { background: #152035; color: #c8d4e8; }
+    .nav a.active { color: #C9A84C; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); }
+    .content { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem; }
+    .sec { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #C9A84C; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 500; white-space: nowrap; }
+    .sec-head { display: flex; align-items: center; gap: 10px; margin: 1.5rem 0 0.8rem; padding-bottom: 8px; border-bottom: 1px solid #1e3050; }
+    .sec-line { flex: 1; height: 1px; background: #1e3050; }
+    .intro { background: rgba(201,168,76,0.05); border: 1px solid rgba(201,168,76,0.2); border-left: 3px solid #C9A84C; border-radius: 4px; padding: 0.9rem 1.1rem; margin-bottom: 1.25rem; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #b0c0d8; line-height: 1.6; }
+    .intro b { color: #C9A84C; font-weight: 500; }
+    .stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.25rem; }
+    .sc { background: #152035; border: 1px solid #1e3050; border-radius: 8px; padding: 0.9rem 1.1rem; }
+    .sc.gb { border-color: rgba(201,168,76,0.5); }
+    .sc-lbl { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #5a7090; font-family: 'Helvetica Neue', Arial, sans-serif; margin-bottom: 6px; }
+    .sc-val { font-size: 22px; color: #fff; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .sc-val.g { color: #C9A84C; }
+    .sc-val.up { color: #4fc87a; }
+    .sc-val.dn { color: #e05a5a; }
+    .sc-sub { font-size: 11px; color: #5a7090; font-family: 'Helvetica Neue', Arial, sans-serif; margin-top: 3px; }
+    .controls { display: flex; gap: 8px; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .ctrl-lbl { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #5a7090; font-family: 'Helvetica Neue', Arial, sans-serif; margin-right: 4px; }
+    .ctrl-btn { background: #152035; border: 1px solid #1e3050; color: #8fa3c0; padding: 5px 12px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; cursor: pointer; border-radius: 4px; letter-spacing: 0.04em; }
+    .ctrl-btn:hover { background: #1c2a45; color: #c8d4e8; }
+    .ctrl-btn.active { background: rgba(201,168,76,0.15); border-color: rgba(201,168,76,0.4); color: #C9A84C; }
+    .mkt-wrap { overflow-x: auto; margin-bottom: 1.5rem; }
+    .mkt { width: 100%; border-collapse: collapse; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; min-width: 740px; }
+    .mkt th { text-align: left; padding: 7px 8px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #3a5070; border-bottom: 1px solid #1e3050; font-weight: 500; }
+    .mkt th.r, .mkt td.r { text-align: right; }
+    .mkt td { padding: 7px 8px; border-bottom: 1px solid #111e30; vertical-align: middle; color: #8fa3c0; }
+    .mkt tr.fk td { background: #1a1305; }
+    .mkt tr.field-bucket td { background: #0a0f1f; border-top: 1px solid rgba(201,168,76,0.2); }
+    .mkt tr:hover td { background: #192840; }
+    .mkt tr.fk:hover td { background: #2a200a; }
+    .mkt tr.field-bucket:hover td { background: #131a32; }
+    .lot-cell { display: flex; align-items: center; gap: 8px; }
+    .lot-num { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 4px; background: #1e3050; color: #7a8faf; font-size: 10px; font-weight: 500; }
+    .lot-num.fk { background: rgba(201,168,76,0.15); color: #C9A84C; }
+    .lot-num.field { background: #0d1e12; color: #6aaa88; }
+    .lot-name { color: #c8d4e8; font-weight: 500; font-size: 13px; }
+    .lot-name.fk { color: #e8d4a0; }
+    .lot-name.field { color: #8fa3c0; font-style: italic; }
+    .lot-sub { font-size: 10px; color: #5a7090; margin-top: 1px; }
+    .sp { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+    .sp-k{background:rgba(201,168,76,0.15);color:#C9A84C;border:1px solid rgba(201,168,76,0.4);}
+    .sp-o{background:#1a2840;color:#8fa3c0;border:1px solid #2a4060;}
+    .sp-f{background:#0a1410;color:#6aaa88;border:1px solid #1a2820;}
+    .score-pill { display: inline-block; min-width: 32px; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 500; text-align: center; background: #1a2840; }
+    .score-pill.u { color: #4fc87a; background: rgba(79,200,122,0.1); }
+    .score-pill.o { color: #e05a5a; background: rgba(224,90,90,0.1); }
+    .score-pill.e { color: #c8d4e8; }
+    .score-pill.none { color: #5a7090; background: #131e30; }
+    .rank-chip { font-size: 10px; color: #7a8faf; }
+    .rank-chip.cash { color: #C9A84C; }
+    .pl-up { color: #4fc87a; font-weight: 500; }
+    .pl-dn { color: #e05a5a; font-weight: 500; }
+    .pl-flat { color: #5a7090; }
+    .mult { font-size: 10px; color: #5a7090; margin-left: 3px; }
+    .mult.up { color: #4fc87a; }
+    .mult.dn { color: #e05a5a; }
+    .daily-tag { display: inline-block; font-size: 9px; color: #7acce8; background: rgba(122,204,232,0.1); border: 1px solid rgba(122,204,232,0.2); padding: 0 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+    .footer{text-align:center;padding:1.5rem 1rem 0;font-size:11px;color:#3a5070;font-family:'Helvetica Neue',Arial,sans-serif;border-top:1px solid #1e3050;margin-top:2rem;}
+    .rbtn{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.4);color:#C9A84C;padding:7px 18px;border-radius:6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;cursor:pointer;margin-top:0.75rem;}
+    .ab{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(79,200,122,0.12);color:#4fc87a;border:1px solid rgba(79,200,122,0.3);font-family:'Helvetica Neue',Arial,sans-serif;margin-left:8px;}
+    @media(max-width:600px){.stat-row{grid-template-columns:repeat(2,1fr);}.hero-title{font-size:20px;}}
+  </style>
+</head>
+<body>
+
+<div class="hero-stripe"></div>
+<div class="hero-inner">
+  <div class="hero-eyebrow">Lufto Calcutta · 2026 PGA Championship</div>
+  <div class="hero-title">Secondary <span>Mark-to-Market</span></div>
+  <div class="hero-sub">Per-golfer implied values for negotiating share buy/sell · Last updated: <span id="last-upd">—</span></div>
+</div>
+<div class="nav">
+  <a href="index.html">Leaderboard</a>
+  <a href="market.html" class="active">Market</a>
+</div>
+
+<div class="content">
+
+  <div class="intro">
+    <b>How to read this:</b> every lot's "implied value" is what it would pay out if the tournament ended right now — placement prize at its current rank, plus a share of any daily round bonuses its golfer is currently leading. <b>P/L</b> is implied value minus auction price. <b>The Field</b> aggregates all undrafted golfers' implied values into one row — that's the lot Kevin Luftman actually owns. Use these as a negotiation floor; final price between buyer and seller.
+  </div>
+
+  <div class="stat-row">
+    <div class="sc gb"><div class="sc-lbl">Total notional</div><div class="sc-val g" id="stat-notional">—</div><div class="sc-sub">sum of all lots' implied values</div></div>
+    <div class="sc"><div class="sc-lbl">Total invested</div><div class="sc-val">$9,442</div><div class="sc-sub">auction pot</div></div>
+    <div class="sc gb"><div class="sc-lbl">Biggest mover ↑</div><div class="sc-val up" id="stat-up">—</div><div class="sc-sub" id="stat-up-sub">—</div></div>
+    <div class="sc"><div class="sc-lbl">Biggest mover ↓</div><div class="sc-val dn" id="stat-dn">—</div><div class="sc-sub" id="stat-dn-sub">—</div></div>
+  </div>
+
+  <div class="controls">
+    <span class="ctrl-lbl">Sort</span>
+    <button class="ctrl-btn active" data-sort="pl">P/L ↓</button>
+    <button class="ctrl-btn" data-sort="mult">Multiplier ↓</button>
+    <button class="ctrl-btn" data-sort="value">Implied $ ↓</button>
+    <button class="ctrl-btn" data-sort="cost">Cost ↓</button>
+    <button class="ctrl-btn" data-sort="score">Score ↓</button>
+    <span class="ctrl-lbl" style="margin-left:1rem;">Filter</span>
+    <button class="ctrl-btn active" data-filter="all">All lots</button>
+    <button class="ctrl-btn" data-filter="pervert">Team Pervert</button>
+    <button class="ctrl-btn" data-filter="cash">Currently cashing</button>
+  </div>
+
+  <div class="mkt-wrap">
+    <table class="mkt">
+      <thead><tr>
+        <th>Lot</th>
+        <th>Team</th>
+        <th class="r">Cost</th>
+        <th>Score</th>
+        <th class="r">Rank</th>
+        <th class="r">Implied $</th>
+        <th class="r">P/L</th>
+      </tr></thead>
+      <tbody id="mkt-body"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Lufto Calcutta · 2026 PGA Championship · Mark-to-Market<br>
+    <span style="margin-top:4px;display:inline-block;">Implied values derived from live ESPN ranks <span class="ab">auto-refresh every 5 min</span></span><br>
+    <button class="rbtn" onclick="loadScores()">↻ Refresh now</button>
+  </div>
+
+</div>
+
+<script>
+// ============================================================================
+// Constants & helpers (mirror index.html — kept local so this page is standalone)
+// ============================================================================
+const POT = 9442;
+const PLACEMENT_PCT = [0.25,0.15,0.10,0.08,0.07,0.06,0.05,0.04,0.04,0.04];
+const DAILY_PCT = 0.03; // each of R1 leader + R2/R3/R4 low
+
+const ESPN_LEADERBOARD_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard';
+const PROXY_URL = '';
+function viaProxy(u){ return PROXY_URL ? PROXY_URL + encodeURIComponent(u) : u; }
+
+function nameKey(n){
+  return (n||'')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g,'')
+    .replace(/ø/g,'o').replace(/æ/g,'ae').replace(/œ/g,'oe')
+    .replace(/ð/g,'d').replace(/þ/g,'th').replace(/ß/g,'ss').replace(/đ/g,'d')
+    .replace(/[^a-z0-9]/g,'');
+}
+const nameAliases = {
+  'jonrahm':'johnrahm',
+  'robertmacintyre':'robertmcintyre',
+  'mattfitzpatrick':'matthewfitzpatrick',
+};
+function parseRelScore(v){
+  if(v===undefined||v===null) return null;
+  if(typeof v==='number') return v;
+  const s=String(v).trim().toUpperCase();
+  if(!s) return null;
+  if(s==='E'||s==='EVEN') return 0;
+  if(['MC','CUT','WD','DQ','DNS','-'].includes(s)) return null;
+  const m=s.match(/^([+-]?)(\d+)$/);
+  if(!m) return null;
+  return m[1]==='-' ? -parseInt(m[2],10) : parseInt(m[2],10);
+}
+function fmtDollars(n){ return '$'+Math.round(n).toLocaleString(); }
+function fmtRel(s){ return s===null?'—':s===0?'E':s<0?String(s):'+'+s; }
+function fmtPL(p){ if(p===0) return '<span class="pl-flat">$0</span>'; if(p>0) return `<span class="pl-up">+${fmtDollars(p)}</span>`; return `<span class="pl-dn">-${fmtDollars(Math.abs(p))}</span>`; }
+function sc(s){ return s===null?'none':s<0?'u':s>0?'o':'e'; }
+
+// ============================================================================
+// Auction roster (mirrors index.html)
+// ============================================================================
+const auction = [
+  {name:'Scottie Scheffler',  owner:'Cameron Kirby',  price:697},
+  {name:'Rory McIlroy',       owner:'Jordan Yeiser',  price:447},
+  {name:'Cameron Young',      owner:'Kyle Griffin',   price:437},
+  {name:'Ludvig Aberg',       owner:'Brian Luftman',  price:269},
+  {name:'Xander Schauffele',  owner:'David McDonald', price:263},
+  {name:'Matthew Fitzpatrick',owner:'Kiko Malouf',    price:252},
+  {name:'Rickie Fowler',      owner:'Matt Maggard',   price:251},
+  {name:'Patrick Cantlay',    owner:'Kiko Malouf',    price:249},
+  {name:'Bryson DeChambeau',  owner:'Kyle Griffin',   price:246},
+  {name:'John Rahm',          owner:'Trevor Galko',   price:238},
+  {name:'Tommy Fleetwood',    owner:'Trevor Galko',   price:237},
+  {name:'Collin Morikawa',    owner:'Nick Sierra',    price:237},
+  {name:'Russell Henley',     owner:'Matt Maggard',   price:236},
+  {name:'Brooks Koepka',      owner:'Kiko Malouf',    price:213},
+  {name:'Chris Gotterup',     owner:'Kevin Luftman',  price:209},
+  {name:'Jordan Spieth',      owner:'David McDonald', price:201},
+  {name:'Sam Burns',          owner:'Trevor Galko',   price:182},
+  {name:'Justin Thomas',      owner:'Ethan Horn',     price:182},
+  {name:'Ben Griffin',        owner:'Philip Collis',  price:181},
+  {name:'Min Woo Lee',        owner:'Nate Belt',      price:178},
+  {name:'Justin Rose',        owner:'Trevor Galko',   price:172},
+  {name:'Shane Lowry',        owner:'Cameron Kirby',  price:170},
+  {name:'Tyrrell Hatton',     owner:'Kiko Malouf',    price:170},
+  {name:'Nicolai Hojgaard',   owner:'Cameron Kirby',  price:166},
+  {name:'Patrick Reed',       owner:'A Cookie',       price:156},
+  {name:'Si Woo Kim',         owner:'Matt Maggard',   price:148},
+  {name:'JJ Spaun',           owner:'David McDonald', price:138},
+  {name:'Sepp Straka',        owner:'Kiko Malouf',    price:133},
+  {name:'Kurt Kitayama',      owner:'David McDonald', price:128},
+  {name:'Viktor Hovland',     owner:'David McDonald', price:125},
+  {name:'Gary Woodland',      owner:'A Cookie',       price:123},
+  {name:'Corey Conners',      owner:'David McDonald', price:118},
+  {name:'Adam Scott',         owner:'Kevin Luftman',  price:115},
+  {name:'Akshay Bhatia',      owner:'Kiko Malouf',    price:111},
+  {name:'Robert McIntyre',    owner:'Trevor Galko',   price:109},
+  {name:'Alex Fitzpatrick',   owner:'Kiko Malouf',    price:107},
+  {name:'Harris English',     owner:'Cameron Kirby',  price:104},
+  {name:'Joaquin Niemann',    owner:'A Cookie',       price:100},
+  {name:'Jacob Bridgeman',    owner:'Kiko Malouf',    price:97},
+  {name:'Keegan Bradley',     owner:'Kevin Luftman',  price:89},
+  {name:'Alex Smalley',       owner:'Matt Maggard',   price:79},
+  {name:'Harry Hall',         owner:'Nick Sierra',    price:70},
+  {name:'Matt McCarty',       owner:'Trevor Galko',   price:66},
+  {name:'Maverick McNealy',   owner:'Trevor Galko',   price:60},
+  {name:'David Puig',         owner:'Trevor Galko',   price:57},
+  {name:'Jason Day',          owner:'A Cookie',       price:53},
+  {name:'Hideki Matsuyama',   owner:'Philip Collis',  price:50},
+  {name:'Kristoffer Reitan',  owner:'Ethan Horn',     price:45},
+  {name:'Sungjae Im',         owner:'Kyle Griffin',   price:28},
+  {name:'Thomas Detry',       owner:'A Cookie',       price:26},
+  {name:'Sahith Theegala',    owner:'A Cookie',       price:25},
+  {name:'Michael Thorbjornsen',owner:'Cameron Kirby', price:20},
+];
+const FIELD_OWNER = 'Kevin Luftman';
+const FIELD_PRICE = 879;
+const FEATURED_OWNER = 'Cameron Kirby';
+
+// Owner aggregate (needed for teamLabels collision detection)
+const owners = {};
+auction.forEach(a => { if(!owners[a.owner]) owners[a.owner] = {}; });
+if(!owners[FIELD_OWNER]) owners[FIELD_OWNER] = {};
+
+// Per-golfer owner lookup
+const golferOwner = {};
+auction.forEach(a => { golferOwner[nameKey(a.name)] = a.owner; });
+
+// Team labels: "Team [LastName]" with first-initial disambiguation for collisions,
+// Cameron Kirby override to "Team Pervert".
+const TEAM_LABEL_OVERRIDES = { 'Cameron Kirby': 'Team Pervert' };
+const teamLabels = (() => {
+  const out = {};
+  const counts = {};
+  Object.keys(owners).forEach(n => { const last = n.trim().split(/\s+/).pop(); counts[last] = (counts[last]||0) + 1; });
+  Object.keys(owners).forEach(n => {
+    if(TEAM_LABEL_OVERRIDES[n]){ out[n] = TEAM_LABEL_OVERRIDES[n]; return; }
+    const last = n.trim().split(/\s+/).pop();
+    if(counts[last] > 1){ out[n] = `Team ${n.trim().charAt(0).toUpperCase()}. ${last}`; }
+    else { out[n] = `Team ${last}`; }
+  });
+  return out;
+})();
+function teamLabel(o){ return teamLabels[o] || o; }
+
+// ============================================================================
+// Live data state
+// ============================================================================
+let liveScores = {};
+let liveRoundScores = {1:[],2:[],3:[],4:[]};
+let fieldGolfers = []; // ESPN names of undrafted golfers
+let currentSort = 'pl';
+let currentFilter = 'all';
+
+function getScore(name){ const v = liveScores[nameKey(name)]; return v===undefined ? null : v; }
+
+// ============================================================================
+// Compute implied values per lot
+// ============================================================================
+function computeMarket(){
+  // Flat list of all live golfers (drafted + field) with scores
+  const all = [];
+  for(const a of auction){
+    all.push({ name:a.name, owner:a.owner, cost:a.price, isDrafted:true, score:getScore(a.name) });
+  }
+  for(const n of fieldGolfers){
+    all.push({ name:n, owner:FIELD_OWNER, cost:0, isDrafted:false, score:getScore(n) });
+  }
+  // Rank by total score asc
+  all.sort((a,b) => { if(a.score===null&&b.score===null) return 0; if(a.score===null) return 1; if(b.score===null) return -1; return a.score-b.score; });
+  // Tie-aware rank assignment
+  let lastScore=null, lastRank=0;
+  all.forEach((g,i) => {
+    if(g.score===null){ g.rank=null; g.placementPay=0; return; }
+    if(g.score !== lastScore){ lastRank = i+1; lastScore = g.score; }
+    g.rank = lastRank;
+    g.placementPay = i < PLACEMENT_PCT.length ? Math.round(POT * PLACEMENT_PCT[i]) : 0;
+  });
+  // Daily bonuses
+  all.forEach(g => g.dailyPay = 0);
+  for(let r=1; r<=4; r++){
+    const arr = liveRoundScores[r] || [];
+    if(!arr.length) continue;
+    const min = Math.min(...arr.map(x => x.rel));
+    const winners = arr.filter(x => x.rel === min);
+    if(!winners.length) continue;
+    const eachPay = (POT * DAILY_PCT) / winners.length;
+    winners.forEach(w => {
+      const target = all.find(g => nameKey(g.name) === nameKey(w.name));
+      if(target) target.dailyPay += eachPay;
+    });
+  }
+  all.forEach(g => { g.implied = Math.round(g.placementPay + g.dailyPay); });
+
+  // Build lots: 52 individual drafted golfers + 1 Field bucket
+  const lots = [];
+  for(const a of auction){
+    const live = all.find(g => g.isDrafted && nameKey(g.name) === nameKey(a.name));
+    const score = live ? live.score : null;
+    const rank = live ? live.rank : null;
+    const implied = live ? live.implied : 0;
+    const placementPay = live ? live.placementPay : 0;
+    const dailyPay = live ? Math.round(live.dailyPay) : 0;
+    lots.push({
+      name: a.name, owner: a.owner, cost: a.price, isDrafted: true,
+      score, rank, implied, placementPay, dailyPay,
+      pl: implied - a.price,
+      mult: a.price > 0 ? implied / a.price : 0,
+    });
+  }
+  // Field aggregate
+  const fieldRows = all.filter(g => !g.isDrafted);
+  const fieldImplied = Math.round(fieldRows.reduce((s,g) => s + g.implied, 0));
+  const fieldPlacement = fieldRows.reduce((s,g) => s + g.placementPay, 0);
+  const fieldDaily = Math.round(fieldRows.reduce((s,g) => s + g.dailyPay, 0));
+  const fieldBest = fieldRows.reduce((acc,g) => {
+    if(g.score===null) return acc;
+    if(!acc || g.score < acc.score) return g;
+    return acc;
+  }, null);
+  const fieldCashing = fieldRows.filter(g => g.implied > 0).length;
+  lots.push({
+    name: 'The Field',
+    owner: FIELD_OWNER, cost: FIELD_PRICE, isDrafted: false, isFieldBucket: true,
+    score: fieldBest ? fieldBest.score : null,
+    rank: fieldBest ? fieldBest.rank : null,
+    bestName: fieldBest ? fieldBest.name : null,
+    fieldCashing,
+    implied: fieldImplied, placementPay: fieldPlacement, dailyPay: fieldDaily,
+    pl: fieldImplied - FIELD_PRICE,
+    mult: FIELD_PRICE > 0 ? fieldImplied / FIELD_PRICE : 0,
+  });
+  return lots;
+}
+
+// ============================================================================
+// Render
+// ============================================================================
+function renderTable(){
+  const data = computeMarket();
+  const sorted = [...data].sort((a,b) => {
+    switch(currentSort){
+      case 'pl': return b.pl - a.pl;
+      case 'mult': return (b.mult||0) - (a.mult||0);
+      case 'value': return b.implied - a.implied;
+      case 'cost': return b.cost - a.cost;
+      case 'score':
+        if(a.score===null && b.score===null) return 0;
+        if(a.score===null) return 1;
+        if(b.score===null) return -1;
+        return a.score - b.score;
+      default: return 0;
+    }
+  });
+  const filtered = sorted.filter(g => {
+    if(currentFilter==='pervert') return g.owner===FEATURED_OWNER;
+    if(currentFilter==='cash') return g.implied > 0;
+    return true;
+  });
+  const tbody = document.getElementById('mkt-body'); tbody.innerHTML = '';
+  filtered.forEach((g) => {
+    const isPervert = g.owner===FEATURED_OWNER;
+    const isField = !!g.isFieldBucket;
+    const scoreTxt = g.score===null ? '—' : fmtRel(g.score);
+    const rankTxt = g.rank===null ? '—' : (g.rank<=PLACEMENT_PCT.length ? `<span class="rank-chip cash">T${g.rank}</span>` : `<span class="rank-chip">T${g.rank}</span>`);
+    const multTxt = g.cost>0 && g.implied>0 ? `<span class="mult ${g.mult>=1?'up':'dn'}">${g.mult.toFixed(2)}x</span>` : '';
+    const dailyTag = g.dailyPay > 0 ? `<span class="daily-tag">+${fmtDollars(g.dailyPay)} daily</span>` : '';
+    const tr = document.createElement('tr');
+    if(isField) tr.className = 'field-bucket';
+    else if(isPervert) tr.className = 'fk';
+    let lotName, lotSub;
+    if(isField){
+      lotName = `<span class="lot-name field">The Field</span>`;
+      lotSub = g.bestName
+        ? `Best undrafted: <b style="color:#8fa3c0">${g.bestName}</b> (${fmtRel(g.score)}) · ${g.fieldCashing} cashing right now`
+        : 'no undrafted golfers scoring yet';
+    } else {
+      lotName = `<span class="lot-name${isPervert?' fk':''}">${g.name}</span>`;
+      lotSub = `${teamLabel(g.owner)} (${g.owner})`;
+    }
+    const ownerSp = isField ? 'sp-f' : (isPervert ? 'sp-k' : 'sp-o');
+    tr.innerHTML = `
+      <td>
+        <div class="lot-cell">
+          <span class="lot-num ${isField?'field':(isPervert?'fk':'')}">${isField?'☘':'•'}</span>
+          <div>
+            ${lotName}${dailyTag}
+            <div class="lot-sub">${lotSub}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="sp ${ownerSp}">${teamLabel(g.owner)}</span></td>
+      <td class="r">${fmtDollars(g.cost)}</td>
+      <td><span class="score-pill ${sc(g.score)}">${scoreTxt}</span></td>
+      <td class="r">${rankTxt}</td>
+      <td class="r" style="color:#C9A84C;font-weight:500;">${fmtDollars(g.implied)}</td>
+      <td class="r">${fmtPL(g.pl)}${multTxt}</td>`;
+    tbody.appendChild(tr);
+  });
+  renderSummary(data);
+}
+
+function renderSummary(data){
+  const totalNotional = data.reduce((s,g) => s + (g.implied||0), 0);
+  document.getElementById('stat-notional').textContent = fmtDollars(totalNotional);
+  const haveScores = data.filter(g => g.score !== null || g.isFieldBucket);
+  if(!haveScores.length || haveScores.every(g => g.implied===0 && g.cost===0)){
+    document.getElementById('stat-up').textContent = '—';
+    document.getElementById('stat-up-sub').textContent = 'awaiting scores';
+    document.getElementById('stat-dn').textContent = '—';
+    document.getElementById('stat-dn-sub').textContent = 'awaiting scores';
+    return;
+  }
+  const up = [...data].sort((a,b)=>b.pl-a.pl)[0];
+  const dn = [...data].sort((a,b)=>a.pl-b.pl)[0];
+  document.getElementById('stat-up').textContent = (up.pl>=0?'+':'-')+fmtDollars(Math.abs(up.pl));
+  document.getElementById('stat-up-sub').textContent = `${up.name} · paid ${fmtDollars(up.cost)} → ${fmtDollars(up.implied)}`;
+  document.getElementById('stat-dn').textContent = (dn.pl>=0?'+':'-')+fmtDollars(Math.abs(dn.pl));
+  document.getElementById('stat-dn-sub').textContent = `${dn.name} · paid ${fmtDollars(dn.cost)} → ${fmtDollars(dn.implied)}`;
+}
+
+// ============================================================================
+// Live data fetch (same shape as index.html's loadScores, scores + round splits)
+// ============================================================================
+async function loadScores(){
+  const lu = document.getElementById('last-upd'); lu.textContent = 'fetching...';
+  try {
+    const res = await fetch(viaProxy(ESPN_LEADERBOARD_URL), { cache:'no-store' });
+    if(!res.ok) throw new Error('leaderboard HTTP '+res.status);
+    const data = await res.json();
+    const event = (data.events||[])[0];
+    if(!event) throw new Error('no active event');
+    const comp = (event.competitions||[])[0] || {};
+    const newScores = {};
+    const newFieldGolfers = [];
+    const newRoundScores = {1:[],2:[],3:[],4:[]};
+    const writeBoth = (k,v) => { newScores[k]=v; const a=nameAliases[k]; if(a) newScores[a]=v; };
+    for(const c of (comp.competitors||[])){
+      const ath = c.athlete||{};
+      const espnName = ath.displayName || ath.fullName || ath.shortName || '';
+      const key = nameKey(espnName);
+      if(!key) continue;
+      const rosterKey = nameAliases[key] || key;
+      if(!golferOwner[rosterKey]) newFieldGolfers.push(espnName);
+      const desc = (c.status?.type?.description||'').toUpperCase();
+      const missedCut = !!c.status?.cut || desc.includes('CUT') || desc.includes('WD') || desc.includes('WITHDR') || desc.includes('DISQ');
+      if(missedCut) continue;
+      const rel = parseRelScore(c.score?.displayValue ?? c.score);
+      if(rel !== null) writeBoth(key, rel);
+      (c.linescores||[]).forEach(ls => {
+        const p = ls.period;
+        if(p<1||p>4) return;
+        const rRel = parseRelScore(ls.displayValue);
+        if(rRel === null) return;
+        newRoundScores[p].push({ name: espnName, rel: rRel });
+      });
+    }
+    liveScores = newScores;
+    liveRoundScores = newRoundScores;
+    fieldGolfers = newFieldGolfers;
+    lu.textContent = new Date().toLocaleTimeString();
+  } catch(e) {
+    console.warn('loadScores failed:', e);
+    lu.textContent = 'unable to fetch scores';
+  }
+  renderTable();
+}
+
+// ============================================================================
+// Wire up controls
+// ============================================================================
+document.querySelectorAll('[data-sort]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSort = btn.dataset.sort;
+    renderTable();
+  });
+});
+document.querySelectorAll('[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderTable();
+  });
+});
+
+// Init
+renderTable();
+loadScores();
+setInterval(loadScores, 300000);
+</script>
+</body>
+</html>
