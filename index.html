@@ -488,6 +488,9 @@ function teamLabel(ownerName){ return teamLabels[ownerName] || ownerName; }
 
 // === Live-data state =========================================================
 let liveScores={}, liveToday={}, scorecards={}, liveTT={}, liveRoundScores={1:[],2:[],3:[],4:[]}, fieldGolfers=[];
+// Exposed so the lazy scorecard fetcher (toggleSc → ensureScorecard) can look up
+// which athlete to fetch for a given golfer name.
+let liveAthleteIds={}, currentEventId=null;
 let tournamentStarted=false;
 let projectedCutline=null, cutInsideCount=0, cutFieldCount=0;
 
@@ -648,7 +651,35 @@ function renderKirby(){
     grid.appendChild(card);
   });
 }
-function toggleSc(uid){ const w=document.getElementById(uid),a=document.getElementById('arr-'+uid); if(!w) return; const o=w.classList.toggle('open'); if(a) a.classList.toggle('open',o); }
+// Lazy scorecard fetch: when a non-Kirby golfer's scorecard is expanded for the
+// first time, fetch their per-hole data in the background and slot it in. Once
+// cached, future loadScores refreshes will keep it current automatically.
+async function ensureScorecard(name, wrapId){
+  if(!name) return;
+  const k = nameKey(name);
+  if(scorecards[k]) return;
+  const aid = liveAthleteIds[k];
+  if(!aid || !currentEventId) return;
+  try {
+    const sd = await fetchScorecard(currentEventId, aid);
+    const rounds = extractRounds(sd);
+    if(!rounds.some(r => r && r.length)) return;
+    scorecards[k] = rounds;
+    const wrap = document.getElementById(wrapId);
+    if(wrap) wrap.innerHTML = buildScorecard(name, rounds);
+  } catch(_){ /* leave empty rows in place */ }
+}
+
+function toggleSc(uid, btn){
+  const w=document.getElementById(uid),a=document.getElementById('arr-'+uid);
+  if(!w) return;
+  const o=w.classList.toggle('open');
+  if(a) a.classList.toggle('open',o);
+  if(btn){
+    if(btn.classList && btn.classList.contains('sc-toggle-btn')) btn.textContent=o?'▴ scorecard':'▾ scorecard';
+    if(o && btn.dataset && btn.dataset.golfer) ensureScorecard(btn.dataset.golfer, uid);
+  }
+}
 
 function renderField(rounds){
   const ranked = rankedField();
@@ -668,7 +699,7 @@ function renderField(rounds){
     const costTxt = r.isDrafted ? '$'+r.cost.toLocaleString() : '$'+FIELD_PRICE.toLocaleString();
     tr.innerHTML = `
       <td><span class="pip ${pc}">${pos}</span></td>
-      <td><span style="color:${isKirby?'#e8d4a0':(isField?'#7a8faf':'#c8d4e8')};font-size:13px;">${r.name}</span>${isKirby?'<span class="role-hl">Team Pervert</span>':''}<button class="sc-toggle-btn" onclick="toggleSc('${ftUid}',this)">▾ scorecard</button></td>
+      <td><span style="color:${isKirby?'#e8d4a0':(isField?'#7a8faf':'#c8d4e8')};font-size:13px;">${r.name}</span>${isKirby?'<span class="role-hl">Team Pervert</span>':''}<button class="sc-toggle-btn" data-golfer="${r.name.replace(/"/g,'&quot;')}" onclick="toggleSc('${ftUid}',this)">▾ scorecard</button></td>
       <td><span class="sp ${ownerSp}">${ownerLabel}</span></td>
       <td class="r">${fmtScoreCell(r.score)}</td>
       <td class="r">${fmtScoreCell(getTodayScore(r.name))}</td>
@@ -858,13 +889,18 @@ async function loadScores(){
     projectedCutline = fieldScores.length>=70 ? fieldScores[69] : null;
     cutInsideCount = projectedCutline===null ? 0 : fieldScores.filter(s=>s<=projectedCutline).length;
 
-    // Per-hole scorecards for Kirby's golfers
+    // Per-hole scorecards: eagerly fetch for Kirby's golfers (always-visible in the panel),
+    // and also refresh any non-Kirby scorecards that have been expanded at least once
+    // (cached in `scorecards`). First-time non-Kirby expansions trigger ensureScorecard().
     const eventId=event.id;
+    currentEventId=eventId;
+    liveAthleteIds=athleteIds;
     const newCards={};
     if(eventId){
-      const kirbyNames = owners[FEATURED_OWNER]?.golfers || [];
-      await Promise.all(kirbyNames.map(async fullName => {
-        const k = nameKey(fullName);
+      const kirbyKeys = (owners[FEATURED_OWNER]?.golfers || []).map(n => nameKey(n));
+      const cachedKeys = Object.keys(scorecards);
+      const targets = [...new Set([...kirbyKeys, ...cachedKeys])];
+      await Promise.all(targets.map(async k => {
         const aid = athleteIds[k];
         if(!aid) return;
         try {
