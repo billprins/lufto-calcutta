@@ -225,6 +225,7 @@
         <th>Golfer</th>
         <th>Owner</th>
         <th class="r">Score</th>
+        <th class="r">Today</th>
         <th class="r">Cost</th>
         <th class="r">Tee time</th>
         <th class="r">Watch on</th>
@@ -373,6 +374,17 @@ function cumulativeToPar(c){
   return total;
 }
 
+// Just the current round's to-par. Returns null if the golfer hasn't teed off
+// in today's round yet (linescore exists but displayValue is empty/'-').
+function todayToPar(c){
+  const lines = c?.linescores;
+  const cp = c?.status?.period;
+  if(!lines || !cp) return null;
+  const cur = lines.find(ls => ls.period === cp);
+  if(!cur) return null;
+  return parseRelScore(cur.displayValue);
+}
+
 // === Auction roster ==========================================================
 // Each row drafted in the calcutta. The "Field" bucket (all undrafted players)
 // is attributed to its single buyer separately.
@@ -475,12 +487,13 @@ const teamLabels = (() => {
 function teamLabel(ownerName){ return teamLabels[ownerName] || ownerName; }
 
 // === Live-data state =========================================================
-let liveScores={}, scorecards={}, liveTT={}, liveRoundScores={1:[],2:[],3:[],4:[]}, fieldGolfers=[];
+let liveScores={}, liveToday={}, scorecards={}, liveTT={}, liveRoundScores={1:[],2:[],3:[],4:[]}, fieldGolfers=[];
 let tournamentStarted=false;
 let projectedCutline=null, cutInsideCount=0, cutFieldCount=0;
 
 // === Helpers =================================================================
 function getScore(name){ const v=liveScores[nameKey(name)]; return v===undefined?null:v; }
+function getTodayScore(name){ const v=liveToday[nameKey(name)]; return v===undefined?null:v; }
 function getSCData(name){ return scorecards[nameKey(name)]||null; }
 function ownerForGolfer(name){ return golferOwner[nameKey(name)] || FIELD_OWNER; }
 
@@ -658,13 +671,14 @@ function renderField(rounds){
       <td><span style="color:${isKirby?'#e8d4a0':(isField?'#7a8faf':'#c8d4e8')};font-size:13px;">${r.name}</span>${isKirby?'<span class="role-hl">Team Pervert</span>':''}<button class="sc-toggle-btn" onclick="toggleSc('${ftUid}',this)">▾ scorecard</button></td>
       <td><span class="sp ${ownerSp}">${ownerLabel}</span></td>
       <td class="r">${fmtScoreCell(r.score)}</td>
+      <td class="r">${fmtScoreCell(getTodayScore(r.name))}</td>
       <td class="r" style="font-size:12px;color:#4a6080;">${costTxt}</td>
       <td class="r" style="font-size:11px;color:#7acce8;">${tt.label} · ${tt.time}</td>
       <td class="r" style="font-size:11px;color:#7a9cd4;">${tt.tv}</td>
       <td class="r" style="color:${isKirby?'#4fc87a':'#8fa3c0'};font-weight:${isKirby?'500':'400'};">$${r.placementPay.toLocaleString()}</td>`;
     tbody.appendChild(tr);
     const scTr=document.createElement('tr');scTr.className='sc-row';
-    scTr.innerHTML=`<td colspan="8"><div class="ft-sc-wrap" id="${ftUid}">${buildScorecard(r.name,getSCData(r.name))}</div></td>`;
+    scTr.innerHTML=`<td colspan="9"><div class="ft-sc-wrap" id="${ftUid}">${buildScorecard(r.name,getSCData(r.name))}</div></td>`;
     tbody.appendChild(scTr);
   });
   renderOwnerStandings(ranked,rounds);
@@ -791,7 +805,7 @@ async function loadScores(){
     const state=(comp.status?.type?.state||'').toLowerCase();
     tournamentStarted = state==='in' || state==='post';
 
-    const newScores={}, newTT={}, athleteIds={};
+    const newScores={}, newToday={}, newTT={}, athleteIds={};
     const newFieldGolfers=[];
     const newRoundScores={1:[],2:[],3:[],4:[]};
     const writeBoth=(map,key,val)=>{ map[key]=val; const a=nameAliases[key]; if(a) map[a]=val; };
@@ -812,6 +826,8 @@ async function loadScores(){
       if(missedCut) continue;
       const rel=cumulativeToPar(c);
       if(rel!==null) writeBoth(newScores,key,rel);
+      const today=todayToPar(c);
+      if(today!==null) writeBoth(newToday,key,today);
       if(ath.id) writeBoth(athleteIds,key,ath.id);
 
       // Per-round single-round to-par for daily bonus calc
@@ -824,6 +840,7 @@ async function loadScores(){
       });
     }
     liveScores=newScores;
+    liveToday=newToday;
     liveTT=newTT;
     liveRoundScores=newRoundScores;
     fieldGolfers=newFieldGolfers;
