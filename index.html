@@ -119,6 +119,9 @@
     .ft tr:hover td { background: #192840; }
     .ft tr.fk:hover td { background: #2a200a; }
     .ft tr.sc-row td { padding: 0; border-top: none; background: #070f08; }
+    .ft tr.cut-divider td { background: rgba(224,90,90,0.07); border-top: 2px dashed rgba(224,90,90,0.55); border-bottom: 2px dashed rgba(224,90,90,0.55); padding: 10px 8px; text-align: center; color: #e05a5a; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; }
+    .ft tr.cut-divider:hover td { background: rgba(224,90,90,0.1); }
+    .ft tr.cut-divider td b { color: #f08080; font-weight: 500; margin: 0 6px; }
     .pip { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 500; }
     .p1{background:#C9A84C;color:#0d1728;} .p2{background:#8fa3c0;color:#0d1728;} .p3{background:#8a6a3a;color:#fff;} .pn{background:#1e3050;color:#5a7090;}
     .sp { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
@@ -684,7 +687,20 @@ function toggleSc(uid, btn){
 function renderField(rounds){
   const ranked = rankedField();
   const tbody = document.getElementById('field-body'); tbody.innerHTML='';
+  // Track when we cross the projected cutline so we can insert a visible divider
+  // between the last golfer making the cut and the first one missing it.
+  let cutInserted = false;
   ranked.forEach((r,i) => {
+    if(!cutInserted && tournamentStarted && projectedCutline!==null){
+      const inside = r.score !== null && r.score <= projectedCutline;
+      if(!inside){
+        const cutLabel = projectedCutline===0?'E':(projectedCutline>0?'+'+projectedCutline:String(projectedCutline));
+        const cutTr = document.createElement('tr'); cutTr.className = 'cut-divider';
+        cutTr.innerHTML = `<td colspan="9">— Projected cut <b>${cutLabel}</b> · top 70 + ties —</td>`;
+        tbody.appendChild(cutTr);
+        cutInserted = true;
+      }
+    }
     const isKirby = r.owner===FEATURED_OWNER;
     const isField = !r.isDrafted;
     const pos = r.rank!=null ? r.rank : '—';
