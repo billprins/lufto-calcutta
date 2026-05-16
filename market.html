@@ -299,6 +299,25 @@ function getScore(name){ const v = liveScores[nameKey(name)]; return v===undefin
 // ============================================================================
 // Compute implied values per lot
 // ============================================================================
+// PGA-style tie handling: golfers tied at position P share the combined prize
+// money of positions P through P+N-1 equally.
+function tiePayouts(sortedScores){
+  const out = new Array(sortedScores.length).fill(0);
+  let i = 0;
+  while(i < sortedScores.length){
+    const s = sortedScores[i];
+    if(s === null || s === undefined){ i++; continue; }
+    let j = i;
+    while(j < sortedScores.length && sortedScores[j] === s) j++;
+    let pct = 0;
+    for(let k = i; k < j; k++) if(k < PLACEMENT_PCT.length) pct += PLACEMENT_PCT[k];
+    const each = Math.round(POT * pct / (j - i));
+    for(let k = i; k < j; k++) out[k] = each;
+    i = j;
+  }
+  return out;
+}
+
 function computeMarket(){
   // Flat list of all live golfers (drafted + field) with scores
   const all = [];
@@ -310,13 +329,14 @@ function computeMarket(){
   }
   // Rank by total score asc
   all.sort((a,b) => { if(a.score===null&&b.score===null) return 0; if(a.score===null) return 1; if(b.score===null) return -1; return a.score-b.score; });
-  // Tie-aware rank assignment
+  // Tie-aware rank + tie-aware payout (split combined prize money).
+  const pays = tiePayouts(all.map(g => g.score));
   let lastScore=null, lastRank=0;
   all.forEach((g,i) => {
     if(g.score===null){ g.rank=null; g.placementPay=0; return; }
     if(g.score !== lastScore){ lastRank = i+1; lastScore = g.score; }
     g.rank = lastRank;
-    g.placementPay = i < PLACEMENT_PCT.length ? Math.round(POT * PLACEMENT_PCT[i]) : 0;
+    g.placementPay = pays[i];
   });
   // Daily bonuses
   all.forEach(g => g.dailyPay = 0);

@@ -537,6 +537,25 @@ function getActiveTT(name){
 // === Placement assignment ====================================================
 // Returns array of { name, owner, score, rank, placementPay }, sorted by score asc.
 // "Rank" is 1-indexed; null scores get null rank and go to the end.
+// PGA-style tie handling: golfers tied at position P share the combined prize
+// money of positions P through P+N-1 equally.
+function tiePayouts(sortedScores){
+  const out = new Array(sortedScores.length).fill(0);
+  let i = 0;
+  while(i < sortedScores.length){
+    const s = sortedScores[i];
+    if(s === null || s === undefined){ i++; continue; }
+    let j = i;
+    while(j < sortedScores.length && sortedScores[j] === s) j++;
+    let pct = 0;
+    for(let k = i; k < j; k++) if(k < PLACEMENT_PCT.length) pct += PLACEMENT_PCT[k];
+    const each = Math.round(POT * pct / (j - i));
+    for(let k = i; k < j; k++) out[k] = each;
+    i = j;
+  }
+  return out;
+}
+
 function rankedField(){
   const rows=[];
   // 1) drafted golfers
@@ -556,9 +575,14 @@ function rankedField(){
     if(!x.cut && y.cut) return 1;
     return 0;
   });
+  // Tie-aware rank + tie-aware payout (split combined prize money).
+  const pays = tiePayouts(rows.map(r => r.score));
+  let lastScore=null, lastRank=0;
   rows.forEach((r,i)=>{
-    r.rank = r.score===null ? null : i+1;
-    r.placementPay = (r.rank!==null && r.rank<=PLACEMENT_PCT.length) ? Math.round(POT*PLACEMENT_PCT[r.rank-1]) : 0;
+    if(r.score===null){ r.rank=null; r.placementPay=0; return; }
+    if(r.score !== lastScore){ lastRank = i+1; lastScore = r.score; }
+    r.rank = lastRank;
+    r.placementPay = pays[i];
   });
   return rows;
 }
