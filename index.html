@@ -122,6 +122,8 @@
     .ft tr.cut-divider td { background: rgba(224,90,90,0.07); border-top: 2px dashed rgba(224,90,90,0.55); border-bottom: 2px dashed rgba(224,90,90,0.55); padding: 10px 8px; text-align: center; color: #e05a5a; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; }
     .ft tr.cut-divider:hover td { background: rgba(224,90,90,0.1); }
     .ft tr.cut-divider td b { color: #f08080; font-weight: 500; margin: 0 6px; }
+    .ft tr.cut-row td { opacity: 0.55; }
+    .cut-badge{display:inline-block;font-size:10px;padding:1px 7px;border-radius:3px;background:rgba(224,90,90,0.1);color:#e05a5a;border:1px solid rgba(224,90,90,0.35);font-family:'Helvetica Neue',Arial,sans-serif;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;}
     .pip { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 500; }
     .p1{background:#C9A84C;color:#0d1728;} .p2{background:#8fa3c0;color:#0d1728;} .p3{background:#8a6a3a;color:#fff;} .pn{background:#1e3050;color:#5a7090;}
     .sp { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
@@ -175,17 +177,6 @@
 
 <div class="content">
 
-  <div class="sec-head"><span class="sec">Projected cutline</span><div class="sec-line"></div></div>
-  <div class="cut-card">
-    <div class="cut-side">
-      <div class="cut-lbl">Projected cut</div>
-      <div class="cut-val" id="cut-val">—</div>
-    </div>
-    <div class="cut-info">
-      <div class="cut-rule">Top 70 + ties after R2</div>
-      <div class="cut-line" id="cut-line">Awaiting enough scores to project</div>
-    </div>
-  </div>
 
   <div class="stat-row">
     <div class="sc gb"><div class="sc-lbl">Pervert invested</div><div class="sc-val g">$1,157</div><div class="sc-sub">5 golfers · 12.3% of pot</div></div>
@@ -490,7 +481,7 @@ const teamLabels = (() => {
 function teamLabel(ownerName){ return teamLabels[ownerName] || ownerName; }
 
 // === Live-data state =========================================================
-let liveScores={}, liveToday={}, scorecards={}, liveTT={}, liveRoundScores={1:[],2:[],3:[],4:[]}, fieldGolfers=[];
+let liveScores={}, liveToday={}, liveCut=new Set(), scorecards={}, liveTT={}, liveRoundScores={1:[],2:[],3:[],4:[]}, fieldGolfers=[];
 // Exposed so the lazy scorecard fetcher (toggleSc → ensureScorecard) can look up
 // which athlete to fetch for a given golfer name.
 let liveAthleteIds={}, currentEventId=null;
@@ -500,6 +491,7 @@ let projectedCutline=null, cutInsideCount=0, cutFieldCount=0;
 // === Helpers =================================================================
 function getScore(name){ const v=liveScores[nameKey(name)]; return v===undefined?null:v; }
 function getTodayScore(name){ const v=liveToday[nameKey(name)]; return v===undefined?null:v; }
+function isCut(name){ return liveCut.has(nameKey(name)); }
 function getSCData(name){ return scorecards[nameKey(name)]||null; }
 function ownerForGolfer(name){ return golferOwner[nameKey(name)] || FIELD_OWNER; }
 
@@ -549,13 +541,21 @@ function rankedField(){
   const rows=[];
   // 1) drafted golfers
   for(const a of auction){
-    rows.push({ name:a.name, owner:a.owner, isDrafted:true, cost:a.price, score:getScore(a.name) });
+    rows.push({ name:a.name, owner:a.owner, isDrafted:true, cost:a.price, score:getScore(a.name), cut:isCut(a.name) });
   }
   // 2) field golfers (from ESPN, undrafted)
   for(const n of fieldGolfers){
-    rows.push({ name:n, owner:FIELD_OWNER, isDrafted:false, cost:0, score:getScore(n) });
+    rows.push({ name:n, owner:FIELD_OWNER, isDrafted:false, cost:0, score:getScore(n), cut:isCut(n) });
   }
-  rows.sort((x,y)=>{ if(x.score===null&&y.score===null) return 0; if(x.score===null) return 1; if(y.score===null) return -1; return x.score-y.score; });
+  // Surviving golfers first (by score), then cut golfers, then no-data.
+  rows.sort((x,y)=>{
+    if(x.score!==null && y.score!==null) return x.score-y.score;
+    if(x.score!==null) return -1;
+    if(y.score!==null) return 1;
+    if(x.cut && !y.cut) return -1;
+    if(!x.cut && y.cut) return 1;
+    return 0;
+  });
   rows.forEach((r,i)=>{
     r.rank = r.score===null ? null : i+1;
     r.placementPay = (r.rank!==null && r.rank<=PLACEMENT_PCT.length) ? Math.round(POT*PLACEMENT_PCT[r.rank-1]) : 0;
@@ -687,41 +687,49 @@ function toggleSc(uid, btn){
 function renderField(rounds){
   const ranked = rankedField();
   const tbody = document.getElementById('field-body'); tbody.innerHTML='';
-  // Track when we cross the projected cutline so we can insert a visible divider
-  // between the last golfer making the cut and the first one missing it.
-  let cutInserted = false;
+  // CUT divider sits between surviving golfers and the first cut golfer
+  let cutDividerInserted = false;
   ranked.forEach((r,i) => {
-    if(!cutInserted && tournamentStarted && projectedCutline!==null){
-      const inside = r.score !== null && r.score <= projectedCutline;
-      if(!inside){
-        const cutLabel = projectedCutline===0?'E':(projectedCutline>0?'+'+projectedCutline:String(projectedCutline));
-        const cutTr = document.createElement('tr'); cutTr.className = 'cut-divider';
-        cutTr.innerHTML = `<td colspan="9">— Projected cut <b>${cutLabel}</b> · top 70 + ties —</td>`;
-        tbody.appendChild(cutTr);
-        cutInserted = true;
-      }
+    if(!cutDividerInserted && r.cut){
+      const cutCount = ranked.filter(x=>x.cut).length;
+      const cutTr = document.createElement('tr'); cutTr.className = 'cut-divider';
+      cutTr.innerHTML = `<td colspan="9">— Cut · <b>${cutCount}</b> golfer${cutCount===1?'':'s'} missed the cut —</td>`;
+      tbody.appendChild(cutTr);
+      cutDividerInserted = true;
     }
     const isKirby = r.owner===FEATURED_OWNER;
     const isField = !r.isDrafted;
-    const pos = r.rank!=null ? r.rank : '—';
-    const pc = r.rank===1?'p1':r.rank===2?'p2':r.rank===3?'p3':'pn';
     const tt = getActiveTT(r.name);
     const ftUid = `ft-sc-${i}`;
     const tr = document.createElement('tr');
-    if(isKirby) tr.className='fk';
-    else if(isField) tr.className='field-row';
+    const trCls = [];
+    if(isKirby) trCls.push('fk'); else if(isField) trCls.push('field-row');
+    if(r.cut) trCls.push('cut-row');
+    if(trCls.length) tr.className = trCls.join(' ');
     const ownerSp = isKirby ? 'sp-k' : (isField ? 'sp-f' : 'sp-o');
     const ownerLabel = isField ? `The Field (${teamLabel(FIELD_OWNER)})` : teamLabel(r.owner);
     const costTxt = r.isDrafted ? '$'+r.cost.toLocaleString() : '$'+FIELD_PRICE.toLocaleString();
+    // Position pip: only for golfers with rank.
+    let posCell;
+    if(r.rank!=null){
+      const pc = r.rank===1?'p1':r.rank===2?'p2':r.rank===3?'p3':'pn';
+      posCell = `<span class="pip ${pc}">${r.rank}</span>`;
+    } else {
+      posCell = '<span style="color:#3a5070;font-size:11px;">—</span>';
+    }
+    const scoreCell = r.cut ? '<span class="cut-badge">Cut</span>' : fmtScoreCell(r.score);
+    const todayCell = r.cut ? '<span style="color:#3a5070">—</span>' : fmtScoreCell(getTodayScore(r.name));
+    const teeCell = r.cut ? '<span style="color:#3a5070;font-size:11px;">—</span>' : `<span style="font-size:11px;color:#7acce8;">${tt.label} · ${tt.time}</span>`;
+    const tvCell = r.cut ? '<span style="color:#3a5070;font-size:11px;">—</span>' : `<span style="font-size:11px;color:#7a9cd4;">${tt.tv}</span>`;
     tr.innerHTML = `
-      <td><span class="pip ${pc}">${pos}</span></td>
+      <td>${posCell}</td>
       <td><span style="color:${isKirby?'#e8d4a0':(isField?'#7a8faf':'#c8d4e8')};font-size:13px;">${r.name}</span>${isKirby?'<span class="role-hl">Team Pervert</span>':''}<button class="sc-toggle-btn" data-golfer="${r.name.replace(/"/g,'&quot;')}" onclick="toggleSc('${ftUid}',this)">▾ scorecard</button></td>
       <td><span class="sp ${ownerSp}">${ownerLabel}</span></td>
-      <td class="r">${fmtScoreCell(r.score)}</td>
-      <td class="r">${fmtScoreCell(getTodayScore(r.name))}</td>
+      <td class="r">${scoreCell}</td>
+      <td class="r">${todayCell}</td>
       <td class="r" style="font-size:12px;color:#4a6080;">${costTxt}</td>
-      <td class="r" style="font-size:11px;color:#7acce8;">${tt.label} · ${tt.time}</td>
-      <td class="r" style="font-size:11px;color:#7a9cd4;">${tt.tv}</td>
+      <td class="r">${teeCell}</td>
+      <td class="r">${tvCell}</td>
       <td class="r" style="color:${isKirby?'#4fc87a':'#8fa3c0'};font-weight:${isKirby?'500':'400'};">$${r.placementPay.toLocaleString()}</td>`;
     tbody.appendChild(tr);
     const scTr=document.createElement('tr');scTr.className='sc-row';
@@ -784,28 +792,15 @@ function updateKirbyStats(ranked, rounds){
   else netHtml = `<span style="color:#e05a5a">-${fmtDollars(Math.abs(net))} net</span>`;
   document.getElementById('kirby-net').innerHTML = netHtml;
 
-  // "Kirby above cut" stat (top stat-row card)
+  // "Pervert above cut" stat (top stat-row card). After cut: count survivors.
   const kirbyGolfers = owners[FEATURED_OWNER]?.golfers || [];
   const total5 = kirbyGolfers.length;
   const cs = document.getElementById('cut-stat'), csub = document.getElementById('cut-sub');
   if(!tournamentStarted){ cs.textContent = total5+' / '+total5; csub.textContent = 'Pre-tournament · all active'; return; }
-  if(projectedCutline===null){
-    const withScores = kirbyGolfers.filter(n => getScore(n)!==null).length;
-    cs.textContent = withScores+' / '+total5; csub.textContent = 'In play · cut not projected yet';
-  } else {
-    const inside = kirbyGolfers.filter(n => { const s=getScore(n); return s!==null && s<=projectedCutline; }).length;
-    cs.textContent = inside+' / '+total5; csub.textContent = 'Inside projected cut';
-  }
-}
-
-function renderCutline(){
-  const v=document.getElementById('cut-val'),line=document.getElementById('cut-line');
-  if(!tournamentStarted){ v.textContent='—'; line.textContent='Tournament not yet underway'; return; }
-  if(projectedCutline===null){ v.textContent='—'; line.textContent=`Awaiting more scores · ${cutFieldCount} of 156 in`; return; }
-  v.textContent = projectedCutline===0 ? 'E' : (projectedCutline>0?'+'+projectedCutline:String(projectedCutline));
-  const kirbyAll = owners[FEATURED_OWNER]?.golfers || [];
-  const nIn = kirbyAll.filter(n => { const s=getScore(n); return s!==null && s<=projectedCutline; }).length;
-  line.innerHTML = `<b>${cutInsideCount}</b> golfers currently at or under · <b>${nIn}</b> of ${kirbyAll.length} Pervert golfers inside`;
+  const stillIn = kirbyGolfers.filter(n => !isCut(n)).length;
+  const cutCount = total5 - stillIn;
+  cs.textContent = stillIn+' / '+total5;
+  csub.textContent = cutCount>0 ? `${cutCount} cut · ${stillIn} still in` : 'all still in';
 }
 
 // === Scorecard fetch =========================================================
@@ -855,7 +850,9 @@ async function loadScores(){
     const newScores={}, newToday={}, newTT={}, athleteIds={};
     const newFieldGolfers=[];
     const newRoundScores={1:[],2:[],3:[],4:[]};
+    const newCut=new Set();
     const writeBoth=(map,key,val)=>{ map[key]=val; const a=nameAliases[key]; if(a) map[a]=val; };
+    const addCut=(key)=>{ newCut.add(key); const a=nameAliases[key]; if(a) newCut.add(a); };
 
     for(const c of (comp.competitors||[])){
       const ath=c.athlete||{};
@@ -870,7 +867,7 @@ async function loadScores(){
       const missedCut = !!c.status?.cut || desc.includes('CUT') || desc.includes('WD') || desc.includes('WITHDR') || desc.includes('DISQ');
       const tt=buildTTFromCompetitor(c);
       if(tt) writeBoth(newTT,key,tt);
-      if(missedCut) continue;
+      if(missedCut){ addCut(key); continue; }
       const rel=cumulativeToPar(c);
       if(rel!==null) writeBoth(newScores,key,rel);
       const today=todayToPar(c);
@@ -891,19 +888,7 @@ async function loadScores(){
     liveTT=newTT;
     liveRoundScores=newRoundScores;
     fieldGolfers=newFieldGolfers;
-
-    // Projected cutline (top 70 + ties)
-    const fieldScores=[];
-    for(const c of (comp.competitors||[])){
-      const desc=(c.status?.type?.description||'').toUpperCase();
-      if(desc.includes('CUT')||desc.includes('WD')||desc.includes('WITHDR')||desc.includes('DISQ')) continue;
-      const rel=cumulativeToPar(c);
-      if(rel!==null) fieldScores.push(rel);
-    }
-    fieldScores.sort((a,b)=>a-b);
-    cutFieldCount=fieldScores.length;
-    projectedCutline = fieldScores.length>=70 ? fieldScores[69] : null;
-    cutInsideCount = projectedCutline===null ? 0 : fieldScores.filter(s=>s<=projectedCutline).length;
+    liveCut=newCut;
 
     // Per-hole scorecards: eagerly fetch for Kirby's golfers (always-visible in the panel),
     // and also refresh any non-Kirby scorecards that have been expanded at least once
@@ -935,14 +920,12 @@ async function loadScores(){
     renderDailyBonuses(rounds);
     renderKirby();
     renderField(rounds);
-    renderCutline();
   } catch(e) {
     console.warn('loadScores failed:', e);
     lu.textContent='unable to fetch scores';
     renderDailyBonuses([null,null,null,null]);
     renderKirby();
     renderField(null);
-    renderCutline();
   }
 }
 
